@@ -306,6 +306,8 @@ def load_texts(folder: Path, cap: int):
 
 def choose_probes(lem_streams: dict[str, list[str]], n_probes: int, min_count: int, big: int):
     big_names = [t for t, s in lem_streams.items() if len(s) >= big]
+    if len(big_names) < 3:  # small libraries: let the longer half of the texts choose
+        big_names = sorted(lem_streams, key=lambda t: -len(lem_streams[t]))[: max(3, len(lem_streams) // 2)]
     counts = {t: Counter(lem_streams[t]) for t in big_names}
     cand = set.intersection(*[{w for w, c in counts[t].items() if c >= min_count} for t in big_names])
     cand = [w for w in cand if w not in STOP and len(w) > 2]
