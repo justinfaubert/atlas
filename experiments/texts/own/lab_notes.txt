@@ -1,0 +1,19 @@
+Notebook: Foraging Distance in a Small Bee Colony
+
+Day 1. The colony was moved into the observation hive this morning. Roughly four thousand workers, one queen, marked with a white dot on the thorax. Weather clear, light wind from the west, temperature at noon about twenty degrees. The question for the season is simple to state: how far do the foragers go, and does the distance change when the nearest flowers are removed?
+
+Day 2. Set up the feeding station at fifty metres from the entrance, a shallow dish of sugar water with a few drops of anise to give it a scent. Took two hours for the first scout to find it. By late afternoon about thirty workers were visiting. Marked twenty of them with yellow paint on the abdomen so that individuals can be followed.
+
+Day 4. The marked foragers return to the dish about every eight minutes. Back at the hive, several of them perform the waggle dance on the vertical comb. The angle of the straight run against vertical matches the angle between the sun and the feeder, within about ten degrees. The duration of the run is short, under half a second, which fits a nearby source.
+
+Day 7. Moved the dish to two hundred metres. Fewer visitors on the first day, but the marked foragers found it again within an hour. Their dances are now longer. Measured eighty runs with the video: the mean duration increased to a little under a second. The relationship between distance and run duration appears roughly linear over this range, but two points are not enough to say so.
+
+Day 10. Rain all day. No foraging. The colony stays inside, and the noise from the hive is louder than usual. Used the time to check the video timing. Found an error: the camera drops a frame every few seconds, which makes the runs look about four percent shorter than they are. Corrected all earlier measurements. The conclusion does not change, but the numbers do, and the notebook should show both.
+
+Day 14. Dish at five hundred metres, across the field and past the line of trees. The first scout took most of a morning to find it. Dance duration now close to two seconds. Plotted all three distances. The points lie close to a straight line, which agrees with what others have reported, though our line is a little steeper. Possible reasons: the wind, the trees, or simply that this colony is small and its foragers are young.
+
+Day 18. Removed the flowering clover from the near meadow by mowing, with permission. Expected the foragers to switch to the dish at once. They did not. For two days they kept visiting the mown meadow, circling where the flowers had been. Memory of a good place seems to outlast the place itself. On the third day the dances changed and pointed to a stand of lime trees about eight hundred metres to the north. Nobody showed them those trees. A scout found them, and within a day the colony had moved most of its effort there.
+
+Day 21. Summary so far. Foraging distance responds to what is available, but slowly; the colony holds onto old information for days after it stops being true. The dance encodes distance in a way that can be measured, and our measurements agree with the standard picture once the camera error is removed. What remains unclear is how the colony decides when to give up on a place. Next season: repeat with two colonies side by side, and measure how long a mown site keeps its visitors.
+
+Note to whoever reads this later: the raw videos are on the second drive, labelled by date. The corrected timings are in the last column of the table, not the first. I made that mistake once and it took a week to find.

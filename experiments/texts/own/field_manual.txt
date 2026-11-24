@@ -1,0 +1,23 @@
+Hand Pump Field Manual
+
+Before you begin, check that the well cap is secure and that nobody has left tools on the platform. A dropped wrench can fall into the casing and end the day before it starts. Wash your hands. Lay a clean cloth on the ground and set each part on it in the order you remove it.
+
+The pump has three working parts that wear out: the cup leather, the foot valve and the pin at the top of the handle. Most failures come from one of these. If the handle moves freely but no water comes, the cup leather is the likely cause. If water comes for a few strokes and then stops, the foot valve is not holding. If the handle knocks or wobbles, look at the pin first.
+
+To remove the handle, hold it level with one hand and tap the pin out with a soft hammer. Do not strike the pin with steel. It is made soft on purpose so that it wears before the handle does. Keep the pin. Even a worn pin tells you which way the load has been pulling.
+
+Lift the head off slowly. The rod is heavy and the water in the pipe pulls it down. Two people should do this. One holds the rod with a clamp while the other lifts the head clear. Never let go of the rod. If it falls into the well it may take a full day and a long hook to bring it back.
+
+With the head off, pull the rod up in sections. Each section is about three metres long. Unscrew each joint by hand and lay the sections side by side on the cloth, in order, with the bottom end pointing away from the well. Count them as they come up. The number of sections tells you how deep the cylinder sits, and you will need that number when you put everything back.
+
+At the bottom of the rod you will find the plunger. The cup leather sits around it like a small collar. A good leather is soft and dark and springs back when you press it with your thumb. A bad leather is hard, cracked or flat on one side. Replace it if you have any doubt. A new leather should soak in clean water for at least an hour before it goes into the cylinder. A dry leather will tear on the first stroke.
+
+The foot valve sits below the cylinder. On most pumps you can reach it without pulling the pipe. Look at the rubber flap. It should lie flat and close with a clear sound when you tap the valve against your palm. If it stays open, or if sand is caught under the edge, clean it carefully. Sand is the common enemy of every part in this pump. Where the water carries sand, check the valve every month.
+
+Now reverse the work. Lower the plunger and rod into the pipe one section at a time. Tighten each joint by hand and then a quarter turn with the wrench. Too tight and the thread will strip the next time someone opens it. Too loose and the joint will unscrew itself after a week of pumping. Set the head back on, fit the handle and drive in the new pin.
+
+Prime the pump with a bucket of clean water poured into the top. Work the handle with long, even strokes. The first water will be cloudy. Let it run until it is clear, then fill a glass and hold it up to the light. Clear water is the only test that matters.
+
+Write down what you did, the date and the number of rod sections in the book that hangs inside the pump house. The next person who comes to repair this pump will thank you, even if you never meet. Most of the knowledge in this work does not live in any one head. It lives in the book, in the worn pin, and in the hands of the people who have done the job before.
+
+If the pump still fails after all of this, the problem is deeper: a split pipe, a lowered water table, or a cylinder that has worn oval. These need a crew and a tripod. Close the well, hang a sign on the handle, and send word to the district office the same day. People will walk a long way for water. Tell them where the nearest working pump is.
