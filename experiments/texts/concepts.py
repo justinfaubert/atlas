@@ -370,7 +370,8 @@ def build(a):
                 kept = set(keep.tolist())
                 lem_kept = [x if i in kept else None for i, x in enumerate(lo)]
                 pi, pos, V = inst.occurrences(raw, lem_kept, probes, a.occ_cap)
-                np.savez_compressed(a.out / f"{slug}__{t}.npz", probe=pi, pos=pos, V=V.astype(np.float16))
+                if a.save_occurrences:
+                    np.savez_compressed(a.out / f"{slug}__{t}.npz", probe=pi, pos=pos, V=V.astype(np.float16))
                 rank = np.searchsorted(np.sort(keep), pos)  # position in the kept stream, for prefixes/halves
                 blocks = (rank // BLOCK) % 2
 
@@ -605,6 +606,7 @@ def main(argv=None):
     p.add_argument("--occ-cap", type=int, default=300, help="neural: occurrences read per probe per text")
     p.add_argument("--sizes", type=int, nargs="*", default=[1000, 2000, 5000, 10000, 20000, 50000, 100000])
     p.add_argument("--probes-file", type=Path, help="fixed probe list (one word per line) instead of choosing")
+    p.add_argument("--save-occurrences", action="store_true", help="neural: also keep every occurrence vector (large)")
     p.add_argument("--device")
     p.add_argument("--batch-size", type=int, default=32)
     p.add_argument("--seed", type=int, default=0)

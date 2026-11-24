@@ -85,10 +85,13 @@ def main(argv=None):
         print(f"nltk gutenberg: {e}", file=sys.stderr)
     for gid in a.gutenberg:
         try:
-            txt = strip_gutenberg(get(GUT_URL.format(gid)).decode("utf-8", "replace"))
+            raw = get(GUT_URL.format(gid)).decode("utf-8", "replace")
+            m = re.search(r"^Title:\s*(.+)$", raw, re.M)
+            title = m.group(1).strip() if m else ""
+            txt = strip_gutenberg(raw)
             (a.out / f"gutenberg-{gid}.txt").write_text(txt)
-            rows.append([f"gutenberg-{gid}", "gutenberg", GUT_URL.format(gid)])
-            print(f"gutenberg-{gid}: {len(txt.split()):,} words")
+            rows.append([f"gutenberg-{gid}", "gutenberg", f"{title} ({GUT_URL.format(gid)})"])
+            print(f"gutenberg-{gid} {title}: {len(txt.split()):,} words")
         except Exception as e:
             print(f"gutenberg {gid}: {e}", file=sys.stderr)
     own = Path(__file__).resolve().parent / "own"
