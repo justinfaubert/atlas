@@ -53,17 +53,13 @@ def analyse(b: Bundle, loop: Sequence[str], null_reps: int = 5, seed: int = 0,
     cons = b.consensus()
     shared_null = float(np.mean([shuffled_bundle(b, rng).consensus().shared_fraction for _ in range(3)]))
     tris = list(itertools.combinations(b.views, 3))
-    tri_twist = np.array([b.twist(t) for t in tris])
-    nulls = [flat_bundle(b, rng, cons) for _ in range(null_reps)]
-    tri_null = np.array([[nb.twist(t) for t in tris] for nb in nulls])
+    tri_twist = b.triangle_twists(tris)
+    tri_null = np.array([flat_bundle(b, rng, cons).triangle_twists(tris) for _ in range(null_reps)])
     h = b.holonomy(loop)
     h2 = h.power(2)
     flips = lambda H: int(np.sum(np.abs(np.linalg.eigvals(H) + 1) < 0.05))
     ut = np.mean([b.unit_twist(loop[r:] + loop[:r]) for r in range(len(loop))], axis=0)
-    V = len(b.views)
-    T = np.zeros((V, V))
-    for i, j in itertools.combinations(range(V), 2):
-        T[i, j] = T[j, i] = b.transport_error(b.views[i], b.views[j])
+    T = b.transport_matrix()
     spectra = {"Shared geometry": spectrum(cons.M), **{v: spectrum(b.fibres[v]) for v in b.views}}
     return BundleResults(
         views=b.views, loop=loop, n_units=b.n, k=b.k, shared=cons.shared_fraction,
@@ -74,6 +70,18 @@ def analyse(b: Bundle, loop: Sequence[str], null_reps: int = 5, seed: int = 0,
         loop_flips=flips(h.H), loop_flips2=flips(h2.H), unit_twist=ut, transport=T,
         spectra=spectra, settings=settings or {},
     )
+
+
+def _subsample(x: np.ndarray, cap: int, keep_ends: int = 50, seed: int = 0) -> np.ndarray:
+    """Indices of at most ``cap`` points to draw, always keeping the lowest and highest ``keep_ends``."""
+    x = np.asarray(x)
+    if len(x) <= cap:
+        return np.arange(len(x))
+    order = np.argsort(x)
+    ends = np.concatenate([order[:keep_ends], order[-keep_ends:]])
+    rest = np.setdiff1d(np.arange(len(x)), ends)
+    pick = np.random.default_rng(seed).choice(rest, cap - len(ends), replace=False)
+    return np.sort(np.concatenate([ends, pick]))
 
 
 def _layout(fig: go.Figure, title: str, height: int = 420) -> go.Figure:
@@ -95,7 +103,9 @@ def figures(r: BundleResults, corpus: ParallelCorpus, snippet_view: str | None =
     fig = go.Figure(go.Bar(x=[v for _, v in items], y=[k for k, _ in items], orientation="h",
                            marker_color=ACCENT, hovertemplate="%{y}: %{x:.1%} its own<extra></extra>"))
     fig.update_xaxes(tickformat=".0%", title="share of this view's geometry that is its own (residual from the shared geometry)")
-    out.append(("residual", _layout(fig, "Each view's own sub-pattern", 80 + 22 * len(items)),
+    if len(items) > 40:
+        fig.update_yaxes(tickfont=dict(size=9))
+    out.append(("residual", _layout(fig, "Each view's own sub-pattern", 80 + int(min(22, max(13, 1400 / len(items))) * len(items))),
                 f"After finding the single geometry every view shares best, {r.shared:.1%} of all the "
                 f"variance is shared (if alignment is destroyed by shuffling, only {r.shared_null:.1%} is). "
                 "Each bar is what is left that belongs to one view alone."))
@@ -107,25 +117,34 @@ def figures(r: BundleResults, corpus: ParallelCorpus, snippet_view: str | None =
                                colorbar=dict(title="misfit"),
                                hovertemplate="%{y} to %{x}: %{z:.3f}<extra></extra>"))
     fig.update_yaxes(autorange="reversed")
-    out.append(("tree", _layout(fig, "How well each view carries onto each other one", 120 + 26 * len(labels)),
+    if len(labels) > 40:
+        fig.update_xaxes(tickfont=dict(size=8), tickangle=-90)
+        fig.update_yaxes(tickfont=dict(size=8))
+    out.append(("tree", _layout(fig, "How well each view carries onto each other one", 120 + int(min(26, max(11, 1300 / len(labels))) * len(labels))),
                 "Held-out misfit after the best rotation from one view onto another (lower is closer), "
                 "ordered so that views that fit each other sit together. Nothing about languages is put in: "
                 "this ordering comes from the geometry alone."))
     # 3 triangle twist vs flat null
+    show = _subsample(r.tri_twist, 4000)
+    null_pts = r.tri_null.ravel()
+    null_pts = null_pts[_subsample(null_pts, 4000)]
     fig = go.Figure()
-    fig.add_trace(go.Box(x=r.tri_null.ravel(), name="noise null", marker=dict(color=NULL, size=3, opacity=0.4),
+    fig.add_trace(go.Box(x=null_pts, name="noise null", marker=dict(color=NULL, size=3, opacity=0.4),
                          boxpoints="all", jitter=0.6, pointpos=0, line=dict(color=NULL), fillcolor="rgba(0,0,0,0)",
                          hoverinfo="skip", orientation="h"))
-    fig.add_trace(go.Box(x=r.tri_twist, name="real loops", marker=dict(color=ACCENT, size=4, opacity=0.6),
+    fig.add_trace(go.Box(x=r.tri_twist[show], name="real loops", marker=dict(color=ACCENT, size=4, opacity=0.6),
                          boxpoints="all", jitter=0.6, pointpos=0, line=dict(color=ACCENT), fillcolor="rgba(0,0,0,0)",
-                         text=[" / ".join(t) for t in r.triangles], orientation="h",
+                         text=[" / ".join(r.triangles[i]) for i in show], orientation="h",
                          hovertemplate="%{text}<br>twist %{x:.3f}<extra></extra>"))
     fig.update_layout(showlegend=False)
     fig.update_xaxes(title="twist: share of the text's energy that moves around the loop (log scale)", type="log")
     beyond = float(np.mean(r.tri_twist > r.tri_null.max()))
-    out.append(("triangles", _layout(fig, "Every loop of three views twists, far beyond noise"),
-                f"For all {len(r.triangles)} loops of three views, how much of the text moves when carried "
-                f"around the loop. The grey null keeps the shared geometry and each view's amount of "
+    title = ("Every loop of three views twists, far beyond noise" if beyond >= 0.95
+             else "How much each loop of three views twists, against noise")
+    out.append(("triangles", _layout(fig, title),
+                f"For all {len(r.triangles):,} loops of three views, how much of the text moves when carried "
+                f"around the loop" + (f" ({len(show):,} shown, always including the most and least twisted)" if len(show) < len(r.triangles) else "")
+                + ". The grey null keeps the shared geometry and each view's amount of "
                 f"difference but scatters it at random. {beyond:.0%} of real loops twist more than the largest "
                 "null value, so the views' differences from the shared geometry are structured."))
     # 4 twist along the text
@@ -215,7 +234,7 @@ def write_report(r: BundleResults, corpus: ParallelCorpus, path: str | Path, tit
     beyond = float(np.mean(r.tri_twist > r.tri_null.max()))
     cards = [
         (f"{r.shared:.0%}", f"of the geometry is shared by all {len(r.views)} views (shuffled: {r.shared_null:.0%})"),
-        (f"{beyond:.0%}", f"of {len(r.triangles)} three-view loops twist beyond the noise null"),
+        (f"{beyond:.0%}", f"of {len(r.triangles):,} three-view loops twist beyond the noise null"),
         (f"{r.tri_twist.mean() / max(r.tri_null.mean(), 1e-12):.0f}x", "mean loop twist relative to the noise null"),
         (f"{r.loop_flips} → {r.loop_flips2}", "180-degree flips once vs twice around the focus loop"),
     ]

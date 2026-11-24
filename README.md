@@ -23,7 +23,7 @@ Every result comes with nulls:
 python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"            # core, runs anywhere, no downloads needed
 pip install -e ".[models]"         # adds sentence-transformers and PyTorch for neural models
-python -m pytest                   # 14 tests, a few seconds
+python -m pytest                   # 16 tests, a few seconds
 ```
 
 ## Run it
@@ -33,6 +33,16 @@ python -m pytest                   # 14 tests, a few seconds
 ```bash
 ./experiments/bible_18.sh data/bible reports/bible_18_languages.html
 ```
+
+**Every Bible in the corpus, through neural models.** Download all of `bibles/` into `data/bible/`, install the model extras, then:
+
+```bash
+pip install -e ".[models]"
+python experiments/bible_all.py --bible data/bible --estimate     # times each model on 2,000 verses
+python experiments/bible_all.py --bible data/bible --out runs/bible_all
+```
+
+Every file is one view (two files in one language are two translators). Each verse is embedded once and cached in `runs/bible_all/cache/`, so a stopped run resumes. Verses are averaged into chapters, and two bundles are built per model: `full` (files covering both testaments) and `nt` (adds the many New Testament only languages). Each gets a report plus the data behind it (`results.json`, `views.csv`, `transport.csv`, `triangles.csv.gz`, `unit_twist.csv`), and each model gets `chapters.npz` with every chapter vector. `compare.json` compares the models. The default models are LaBSE (trained on translation pairs) and XLM-RoBERTa base (never shown a translation), so the second is a control for what the training builds in. Any embedder spec works with `--models`, including `lsa:64` and `hash:256`, which need no downloads.
 
 **Your own texts.** Put one file per view with one unit per line, so that line *i* is the same unit in every file:
 
@@ -49,6 +59,7 @@ Embedder specs:
 - `lsa:200`: character-statistics LSA, fitted separately per view, no downloads.
 - `st:<model>`: any sentence-transformers model.
 - `ollama:<model>`: an embedding model served by a local Ollama.
+- `hash:256`: character n-grams hashed into one space that every view shares, no downloads. A baseline for how far spelling alone lines languages up.
 
 Embeddings are cached in `.atlas_cache/`, so nothing is embedded twice.
 

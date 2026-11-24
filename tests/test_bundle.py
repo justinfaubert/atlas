@@ -85,3 +85,17 @@ def test_local_holonomy_is_near_one_for_a_flat_bundle():
     starts, w = b.local_holonomy(["a", "b", "c"], window=100, step=50, k_local=4)
     assert len(starts) == len(w) == 11
     assert np.all(w > 0.95)
+
+
+def test_fast_paths_match_the_slow_ones():
+    rng = np.random.default_rng(7)
+    n, d = 300, 16
+    base = rng.standard_normal((n, d)) * np.linspace(2, 0.2, d)
+    emb = {v: base @ random_rotation(d, rng) + 0.4 * rng.standard_normal((n, d)) for v in "abcde"}
+    b = Bundle.from_embeddings(emb, k=8)
+    tris = [("a", "b", "c"), ("b", "d", "e"), ("e", "a", "c")]
+    assert np.allclose(b.triangle_twists(tris), [b.twist(t) for t in tris], atol=1e-10)
+    T = b.transport_matrix()
+    for i, j in [(0, 1), (2, 4), (1, 3)]:
+        assert T[i, j] == pytest.approx(b.transport_error(b.views[i], b.views[j]), abs=1e-10)
+        assert T[j, i] == T[i, j]

@@ -162,6 +162,68 @@ class Bundle:
         views = list(views or self.views)
         return [self.holonomy(t) for t in combinations(views, 3)]
 
+    # many views at once ----------------------------------------------------
+    def _stack(self, views: Sequence[str]) -> np.ndarray:
+        return np.stack([self.fibres[v] for v in views])
+
+    def connection_stack(self, views: Sequence[str] | None = None) -> np.ndarray:
+        """Every connection at once: ``R[i, j]`` carries view i onto view j, shape (V, V, k, k)."""
+        views = list(views or self.views)
+        Z = self._stack(views)
+        V, _, k = Z.shape
+        C = np.tensordot(Z, Z, axes=([1], [1])).transpose(0, 2, 1, 3)  # V V k k, C[a,b] = Z_a^T Z_b
+        U, _, Vt = np.linalg.svd(C)
+        return U @ Vt
+
+    def triangle_twists(self, triangles: Sequence[Sequence[str]] | None = None,
+                        views: Sequence[str] | None = None, batch: int = 8192) -> np.ndarray:
+        """``twist`` for many three-view loops at once (same numbers, far faster).
+
+        Uses ``||Z H - Z||^2 = 2 tr(G) - 2 tr(G H)`` with ``G = Z^T Z``, and the
+        fact that starting the loop at b or c conjugates H by a connection, so
+        everything stays k x k.
+        """
+        views = list(views or self.views)
+        tris = list(triangles) if triangles is not None else list(combinations(views, 3))
+        if not tris:
+            return np.empty(0)
+        idx = {v: i for i, v in enumerate(views)}
+        R = self.connection_stack(views)
+        Z = self._stack(views)
+        G = np.einsum("anj,ank->ajk", Z, Z)
+        trG = np.einsum("ajj->a", G)
+        T = np.array([[idx[v] for v in t] for t in tris])
+        out = np.empty(len(T))
+        tr = lambda M, H: np.einsum("tij,tji->t", M, H)
+        for s in range(0, len(T), batch):
+            a, b, c = T[s:s + batch].T
+            Rab, Rac = R[a, b], R[a, c]
+            Ha = Rab @ R[b, c] @ R[c, a]
+            Gb = Rab @ G[b] @ Rab.transpose(0, 2, 1)
+            Gc = Rac @ G[c] @ Rac.transpose(0, 2, 1)
+            out[s:s + batch] = 2 - (2 / 3) * (tr(G[a], Ha) / trG[a] + tr(Gb, Ha) / trG[b] + tr(Gc, Ha) / trG[c])
+        return out
+
+    def transport_matrix(self, views: Sequence[str] | None = None, test_fraction: float = 0.3,
+                         seed: int = 0) -> np.ndarray:
+        """``transport_error`` for every pair at once; symmetric, using the i-to-j fit for i < j."""
+        views = list(views or self.views)
+        rng = np.random.default_rng(seed)
+        idx = rng.permutation(self.n)
+        n_test = max(1, int(self.n * test_fraction))
+        test, train = idx[:n_test], idx[n_test:]
+        Z = self._stack(views)
+        Ztr, Zte = Z[:, train], Z[:, test]
+        C = np.tensordot(Ztr, Ztr, axes=([1], [1])).transpose(0, 2, 1, 3)
+        U, _, Vt = np.linalg.svd(C)
+        R = U @ Vt
+        Cte = np.tensordot(Zte, Zte, axes=([1], [1])).transpose(0, 2, 1, 3)
+        e = np.einsum("anj->a", Zte ** 2)
+        cross = np.einsum("abjk,abjk->ab", R, Cte)
+        M = (e[:, None] + e[None, :] - 2 * cross) / e[None, :]
+        M = np.triu(M, 1)
+        return M + M.T
+
     def twist(self, loop: Sequence[str], times: int = 1) -> float:
         """Share of a fibre's energy that moves when carried around the loop.
 

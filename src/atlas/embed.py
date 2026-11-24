@@ -9,6 +9,8 @@ strings so runs can be described in one line:
 * ``st:<model>``: a sentence-transformers model, e.g. ``st:all-mpnet-base-v2``
   or ``st:sentence-transformers/LaBSE``. Install ``atlas[models]``.
 * ``ollama:<model>``: an embedding model served by a local Ollama.
+* ``hash:256``: character n-grams hashed into one space shared by every view,
+  then a fixed random projection. Needs no downloads.
 """
 
 from __future__ import annotations
@@ -71,11 +73,50 @@ class LSAEmbedder:
         return self.fit(texts).transform(texts)
 
 
+class HashEmbedder:
+    """Character n-grams hashed into one shared space, then a fixed random projection.
+
+    Unlike LSA, every language lands in the same coordinates, so languages
+    that share spellings (names, loanwords, cognates) line up without any
+    rotation. A no-download baseline for the "native gauge" of shared-space models.
+    """
+
+    def __init__(self, dim: int = 256, n_features: int = 2 ** 18, seed: int = 0):
+        self.dim = dim
+        self.n_features = n_features
+        self.seed = seed
+        self.spec = f"hash:{dim}"
+        self._vec = self._proj = None
+
+    def fit(self, texts: Sequence[str]) -> "HashEmbedder":
+        return self
+
+    def transform(self, texts: Sequence[str]) -> np.ndarray:
+        return self.encode(texts)
+
+    def encode(self, texts: Sequence[str]) -> np.ndarray:
+        import scipy.sparse as sp
+        from sklearn.feature_extraction.text import HashingVectorizer
+        from sklearn.random_projection import SparseRandomProjection
+
+        if self._vec is None:
+            self._vec = HashingVectorizer(analyzer="char_wb", ngram_range=(2, 4), n_features=self.n_features,
+                                          alternate_sign=False, norm="l2")
+            self._proj = SparseRandomProjection(self.dim, dense_output=True, random_state=self.seed).fit(
+                sp.csr_matrix((1, self.n_features)))
+        return np.asarray(self._proj.transform(self._vec.transform(texts)), dtype=np.float32)
+
+
 class SentenceTransformerEmbedder:
-    def __init__(self, model: str, batch_size: int = 64, device: str | None = None):
+    """A sentence-transformers model. Picks the GPU when there is one and runs it in half precision there."""
+
+    def __init__(self, model: str, batch_size: int = 64, device: str | None = None,
+                 fp16: bool = True, max_seq_length: int | None = 256):
         self.model_name = model
         self.batch_size = batch_size
         self.device = device
+        self.fp16 = fp16
+        self.max_seq_length = max_seq_length
         self.spec = f"st:{model}"
         self._model = None
 
@@ -85,13 +126,27 @@ class SentenceTransformerEmbedder:
     def transform(self, texts: Sequence[str]) -> np.ndarray:
         return self.encode(texts)
 
-    def encode(self, texts: Sequence[str]) -> np.ndarray:
+    def load(self):
         if self._model is None:
+            import torch
             from sentence_transformers import SentenceTransformer
 
-            self._model = SentenceTransformer(self.model_name, device=self.device)
-        out = self._model.encode(list(texts), batch_size=self.batch_size,
-                                 show_progress_bar=len(texts) > 500, convert_to_numpy=True)
+            device = self.device
+            if device is None:
+                device = "cuda" if torch.cuda.is_available() else (
+                    "mps" if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available() else "cpu")
+            self.device = device
+            self._model = SentenceTransformer(self.model_name, device=device)
+            if self.max_seq_length:
+                self._model.max_seq_length = min(self._model.max_seq_length or self.max_seq_length,
+                                                 self.max_seq_length)
+            if self.fp16 and device == "cuda":
+                self._model.half()
+        return self._model
+
+    def encode(self, texts: Sequence[str]) -> np.ndarray:
+        out = self.load().encode(list(texts), batch_size=self.batch_size,
+                                 show_progress_bar=False, convert_to_numpy=True)
         return np.asarray(out, dtype=np.float32)
 
 
@@ -119,12 +174,15 @@ class OllamaEmbedder:
         return np.asarray(rows, dtype=np.float32)
 
 
-def get_embedder(spec: str) -> Embedder:
+def get_embedder(spec: str, **options) -> Embedder:
+    """``options`` go to the sentence-transformers embedder (batch_size, device, fp16, max_seq_length)."""
     kind, _, arg = spec.partition(":")
     if kind == "lsa":
         return LSAEmbedder(dim=int(arg or 200))
+    if kind == "hash":
+        return HashEmbedder(dim=int(arg or 256))
     if kind == "st":
-        return SentenceTransformerEmbedder(arg)
+        return SentenceTransformerEmbedder(arg, **options)
     if kind == "ollama":
         return OllamaEmbedder(arg)
     raise ValueError(f"unknown embedder spec {spec!r}")

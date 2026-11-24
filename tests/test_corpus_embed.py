@@ -40,3 +40,12 @@ def test_spectrum_and_decay():
     assert np.isclose(lam.sum(), 1)
     fit = decay_fit(lam)
     assert fit.power_r2 > 0.9 and 1.0 < fit.alpha < 2.2
+
+
+def test_hash_embedder_is_one_fixed_shared_space():
+    from atlas.embed import get_embedder
+
+    a = get_embedder("hash:64").encode(["Jerusalem", "Abraham begat Isaac"])
+    b = get_embedder("hash:64").encode(["Abraham begat Isaac", "Jerusalem"])
+    assert a.shape == (2, 64)
+    assert np.allclose(a[0], b[1]) and np.allclose(a[1], b[0])
