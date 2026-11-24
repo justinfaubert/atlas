@@ -31,29 +31,44 @@ class Embedder(Protocol):
 
 
 class LSAEmbedder:
-    """Character n-gram TF-IDF plus truncated SVD, fitted on the texts it encodes."""
+    """Character n-gram TF-IDF plus truncated SVD.
+
+    ``encode`` fits on the texts it is given. For several scales of the same
+    view, call ``fit`` once (for example on sentences) and then ``transform``
+    words, paragraphs and wholes, so every scale lands in one space.
+    """
 
     def __init__(self, dim: int = 200, max_features: int = 200_000, seed: int = 0):
         self.dim = dim
         self.max_features = max_features
         self.seed = seed
         self.spec = f"lsa:{dim}"
+        self._vec = None
+        self._svd = None
 
-    def encode(self, texts: Sequence[str]) -> np.ndarray:
+    def fit(self, texts: Sequence[str]) -> "LSAEmbedder":
         from sklearn.decomposition import TruncatedSVD
         from sklearn.feature_extraction.text import TfidfVectorizer
 
         joined = " ".join(texts[:2000])
         if is_unspaced(joined):
-            vec = TfidfVectorizer(analyzer="char", ngram_range=(1, 3), sublinear_tf=True,
-                                  max_features=self.max_features, min_df=2)
+            self._vec = TfidfVectorizer(analyzer="char", ngram_range=(1, 3), sublinear_tf=True,
+                                        max_features=self.max_features, min_df=2)
         else:
-            vec = TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 4), sublinear_tf=True,
-                                  max_features=self.max_features, min_df=2, lowercase=True)
-        tf = vec.fit_transform(texts)
+            self._vec = TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 4), sublinear_tf=True,
+                                        max_features=self.max_features, min_df=2, lowercase=True)
+        tf = self._vec.fit_transform(texts)
         dim = min(self.dim, tf.shape[1] - 1, tf.shape[0] - 1)
-        svd = TruncatedSVD(n_components=dim, random_state=self.seed)
-        return svd.fit_transform(tf).astype(np.float32)
+        self._svd = TruncatedSVD(n_components=dim, random_state=self.seed).fit(tf)
+        return self
+
+    def transform(self, texts: Sequence[str]) -> np.ndarray:
+        if self._vec is None:
+            raise RuntimeError("call fit first")
+        return self._svd.transform(self._vec.transform(texts)).astype(np.float32)
+
+    def encode(self, texts: Sequence[str]) -> np.ndarray:
+        return self.fit(texts).transform(texts)
 
 
 class SentenceTransformerEmbedder:
@@ -63,6 +78,12 @@ class SentenceTransformerEmbedder:
         self.device = device
         self.spec = f"st:{model}"
         self._model = None
+
+    def fit(self, texts: Sequence[str]) -> "SentenceTransformerEmbedder":
+        return self
+
+    def transform(self, texts: Sequence[str]) -> np.ndarray:
+        return self.encode(texts)
 
     def encode(self, texts: Sequence[str]) -> np.ndarray:
         if self._model is None:
@@ -80,6 +101,12 @@ class OllamaEmbedder:
         self.host = host.rstrip("/")
         self.batch_size = batch_size
         self.spec = f"ollama:{model}"
+
+    def fit(self, texts: Sequence[str]) -> "OllamaEmbedder":
+        return self
+
+    def transform(self, texts: Sequence[str]) -> np.ndarray:
+        return self.encode(texts)
 
     def encode(self, texts: Sequence[str]) -> np.ndarray:
         rows: list[list[float]] = []

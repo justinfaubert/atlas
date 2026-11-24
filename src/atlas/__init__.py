@@ -12,4 +12,4 @@ from .bundle import Bundle, Holonomy
 from .embed import get_embedder
 
 __all__ = ["ParallelCorpus", "segment_text", "Bundle", "Holonomy", "get_embedder"]
-__version__ = "0.1.0"
+__version__ = "0.2.0"

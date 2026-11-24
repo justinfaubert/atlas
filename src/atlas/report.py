@@ -247,3 +247,155 @@ def write_report(r: BundleResults, corpus: ParallelCorpus, path: str | Path, tit
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("".join(parts), encoding="utf-8")
     return path
+
+
+# ---------------------------------------------------------------------------
+# scale bundle report
+
+
+def _page(title: str, intro: str, cards, findings, sections, caveats, settings: dict, plotlyjs: str) -> str:
+    parts = [f"<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>"
+             f"<title>{html.escape(title)}</title><style>{CSS}</style>"]
+    if plotlyjs == "inline":
+        from plotly.offline import get_plotlyjs
+        parts.append(f"<script>{get_plotlyjs()}</script>")
+    else:
+        parts.append(f"<script src='{plotlyjs}'></script>")
+    parts.append(f"</head><body><main><h1>{html.escape(title)}</h1><p class='sub'>{html.escape(intro)}</p>")
+    parts.append("<div class='cards'>" + "".join(f"<div class='card'><b>{a}</b><span>{html.escape(b)}</span></div>" for a, b in cards) + "</div>")
+    if findings:
+        parts.append("<h2>What it shows</h2><ul>" + "".join(f"<li>{html.escape(f)}</li>" for f in findings) + "</ul>")
+    for key, heading, note, fig, extra in sections:
+        parts.append(f"<h2>{html.escape(heading)}</h2><p class='note'>{html.escape(note)}</p>")
+        fig.update_layout(title=None, margin=dict(t=20))
+        spec = fig.to_json()
+        parts.append(f"<div id='fig-{key}'></div><script>(function(){{var f={spec};"
+                     f"Plotly.newPlot('fig-{key}', f.data, f.layout, {{responsive:true, displaylogo:false}});}})();</script>")
+        parts.append(extra or "")
+    if caveats:
+        parts.append("<h2>Read with care</h2><ul>" + "".join(f"<li>{html.escape(c)}</li>" for c in caveats) + "</ul>")
+    parts.append(f"<h2>Run settings</h2><pre><code>{html.escape(json.dumps(settings, indent=1, ensure_ascii=False))}</code></pre>")
+    parts.append("</main></body></html>")
+    return "".join(parts)
+
+
+def write_scale_report(r, ss, path: str | Path, title: str, intro: str = "", findings: Sequence[str] = (),
+                       caveats: Sequence[str] = (), snippet_view: str | None = None, plotlyjs: str = "inline") -> Path:
+    from .scales import _residualise, length_and_repetition
+
+    sections = []
+    steps = [f"{a} ↔ {b}" for a, b in r.plaquettes]
+    # 1 plaquettes per scale step
+    fig = go.Figure()
+    for (lp, d), name in zip(r.plaquettes.items(), steps):
+        fig.add_trace(go.Box(y=list(d.values()), name=name, boxpoints="all", jitter=0.5, pointpos=0,
+                             marker=dict(color=ACCENT, size=4, opacity=0.6), line=dict(color=ACCENT),
+                             fillcolor="rgba(0,0,0,0)", text=[f"{a} / {c}" for a, c in d],
+                             hovertemplate="%{text}<br>twist %{y:.3f}<extra></extra>"))
+    fig.add_trace(go.Scatter(x=steps, y=list(r.plaquette_null.values()), mode="markers", name="noise null",
+                             marker=dict(color=NULL, size=12, symbol="line-ew-open", line=dict(width=3))))
+    fig.add_hline(y=r.language_triangle_twist, line=dict(color=INK, dash="dot", width=1),
+                  annotation_text="language triangles at the whole level", annotation_position="top left")
+    fig.update_yaxes(title="plaquette twist", rangemode="tozero")
+    fig.update_layout(showlegend=False)
+    sections.append(("plaquettes", "Where scale and language fail to commute",
+                     "Each dot is one pair of languages and one step between scales: go down a scale then across to the "
+                     "other language, or across then down, and measure how much the two routes disagree. The grey ticks "
+                     "are the noise null; the dotted line is the twist of loops through three languages, for scale.",
+                     _layout(fig, "", 440), ""))
+    # 2 scale loops per language
+    items = sorted(r.scale_loop_twist.items(), key=lambda kv: kv[1])
+    fig = go.Figure()
+    fig.add_trace(go.Bar(x=[v for _, v in items], y=[k for k, _ in items], orientation="h", marker_color=ACCENT,
+                         name="real", hovertemplate="%{y}: %{x:.3f}<extra></extra>"))
+    fig.add_trace(go.Bar(x=[r.scale_loop_null[k] for k, _ in items], y=[k for k, _ in items], orientation="h",
+                         marker_color=NULL, name="noise null"))
+    fig.update_layout(barmode="overlay", legend=dict(orientation="h", y=1.08, x=0))
+    fig.update_xaxes(title="twist of the loop whole → paragraph → verse → word → whole")
+    sections.append(("scaleloops", "Taking apart and reassembling never quite closes",
+                     "Within each language, carry the chapters down through every scale and back up to the whole. "
+                     "Every language's loop twists well beyond the noise null.",
+                     _layout(fig, "", 90 + 24 * len(items)), ""))
+    # 3 binding invariance
+    names = r.views
+    M = r.binding_matrix.copy()
+    np.fill_diagonal(M, np.nan)
+    fig = go.Figure(go.Heatmap(z=M, x=names, y=names, colorscale="Viridis", zmin=0, zmax=1,
+                               colorbar=dict(title="Spearman"),
+                               hovertemplate="%{y} and %{x}: %{z:.2f}<extra></extra>"))
+    fig.update_yaxes(autorange="reversed")
+    lo, sd = r.binding_corr_null
+    sections.append(("bindcorr", "The same chapters bind in every language",
+                     f"Binding is what the best linear reassembly of a chapter's words, verses and paragraphs misses of the "
+                     f"chapter as a whole. Each cell compares two languages chapter by chapter, after removing chapter "
+                     f"length and repetition. Mean {r.binding_corr_controlled:.2f}; with chapters shuffled, "
+                     f"{lo:.3f} ± {sd:.3f}.",
+                     _layout(fig, "", 120 + 26 * len(names)), ""))
+    # 4 binding along the text
+    cov = length_and_repetition(ss)
+    mb = np.mean([_residualise(x, cov) for x in r.binding.values()], axis=0)
+    sv = snippet_view or r.views[0]
+    books = ss.meta.get("book", [""] * len(ss.parents))
+    snips = [html.escape(t[:140]) + "..." for t in ss.whole_texts[sv]]
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=np.arange(len(mb)), y=mb, mode="markers", marker=dict(size=4, color=ACCENT, opacity=0.55),
+                             customdata=np.stack([ss.parents, snips], axis=1),
+                             hovertemplate="%{customdata[0]}  binding %{y:.3f}<br>%{customdata[1]}<extra></extra>"))
+    fig.add_trace(go.Scatter(x=np.arange(len(mb)), y=np.convolve(mb, np.ones(9) / 9, mode="same"), mode="lines",
+                             line=dict(color=INK, width=1.5), hoverinfo="skip"))
+    starts = [i for i in range(len(books)) if i == 0 or books[i] != books[i - 1]]
+    lengths = {s: (starts[j + 1] if j + 1 < len(starts) else len(books)) - s for j, s in enumerate(starts)}
+    for j, s0 in enumerate(starts):
+        if j % 2 == 0:
+            fig.add_vrect(x0=s0 - 0.5, x1=s0 + lengths[s0] - 0.5, fillcolor="rgba(140,149,159,0.12)", line_width=0, layer="below")
+    ticks = [s0 for s0 in starts if lengths[s0] >= 20]
+    fig.update_xaxes(tickvals=ticks, ticktext=[books[i] for i in ticks])
+    fig.update_yaxes(title="binding (mean over languages, length and repetition removed)")
+    fig.update_layout(showlegend=False)
+    o = np.argsort(mb)[::-1]
+    row = lambda i: (f"<tr><td>{html.escape(ss.parents[i])}</td><td>{mb[i]:+.3f}</td>"
+                     f"<td>{html.escape(ss.whole_texts[sv][i][:200])}...</td></tr>")
+    table = ("<table><tr><th>Chapter</th><th>Binding</th><th>Text</th></tr>"
+             "<tr><td colspan='3'><b>Wholes that differ most from their parts</b></td></tr>" + "".join(row(i) for i in o[:8]) +
+             "<tr><td colspan='3'><b>Wholes that are most nearly the sum of their parts</b></td></tr>" + "".join(row(i) for i in o[-8:][::-1]) +
+             "</table>")
+    sections.append(("binding", "Where the whole is more than its parts",
+                     "Binding per chapter, averaged over languages after removing length and repetition. Hover a dot to read it.",
+                     _layout(fig, "", 420), table))
+    # 5 persistence of top directions across scales
+    fig = go.Figure()
+    blocks = list(next(iter(r.persistence.values())))
+    colors = [ACCENT, "#e08a55", "#efb991", "#f6dcc6"]
+    for bname, col in zip(blocks, colors):
+        fig.add_trace(go.Bar(x=list(r.persistence), y=[r.persistence[l][bname] for l in r.persistence], name=f"directions {bname}",
+                             marker_color=col, hovertemplate="%{x}, directions " + bname + ": %{y:.2f}<extra></extra>"))
+    d = ss.emb[(r.views[0], "whole")].shape[1]
+    fig.add_hline(y=3 / d, line=dict(color=NULL, dash="dot"), annotation_text="random directions", annotation_position="top right")
+    fig.update_layout(barmode="group", legend=dict(orientation="h", y=1.1, x=0))
+    fig.update_yaxes(title="overlap with the same directions of the whole", range=[0, 1])
+    fig.update_xaxes(title="finer scale compared with the whole")
+    sections.append(("persist", "Do the top directions survive coarse-graining?",
+                     "For each finer scale, how closely its principal directions line up with the whole's own, in the same "
+                     "space (1 = identical, the dotted line = random). This is the renormalisation test: directions that "
+                     "survive every step from words to whole are the 'relevant' ones.",
+                     _layout(fig, "", 420), ""))
+    # 6 top-3 share per level
+    fig = go.Figure(go.Bar(x=list(r.level_top3), y=list(r.level_top3.values()), marker_color=ACCENT,
+                           hovertemplate="%{x}: %{y:.1%}<extra></extra>"))
+    fig.update_yaxes(title="share of variance in the top three directions", tickformat=".0%", rangemode="tozero")
+    sections.append(("top3", "Three directions at every scale",
+                     "The share of the shared geometry (across languages) held by its top three directions, scale by scale.",
+                     _layout(fig, "", 360), ""))
+    plaq_means = {s: float(np.mean(list(d.values()))) for s, d in zip(steps, r.plaquettes.values())}
+    biggest = max(plaq_means, key=plaq_means.get)
+    cards = [
+        (f"{np.mean(list(r.reassembly_share.values())):.0%}", "of each chapter's whole is recovered from its parts, on average"),
+        (f"{r.binding_corr_controlled:.2f}", f"agreement between languages on which chapters bind (shuffled: {lo:.3f})"),
+        (f"{plaq_means[biggest]:.2f}", f"mean plaquette twist at {biggest}, the step where scale and language interact most"),
+        (f"{np.mean([r.persistence[l]['1-3'] for l in r.persistence]):.2f}", "mean overlap of the top three directions with the whole's, across scales"),
+    ]
+    settings = {"units": r.n_units, "k": r.k, "views": r.views, "levels": list(r.levels), **r.settings}
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(_page(title, intro, cards, findings, sections, caveats, settings, plotlyjs), encoding="utf-8")
+    return path

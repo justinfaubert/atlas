@@ -23,7 +23,7 @@ Every result comes with nulls:
 python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"            # core, runs anywhere, no downloads needed
 pip install -e ".[models]"         # adds sentence-transformers and PyTorch for neural models
-python -m pytest                   # 12 tests, a few seconds
+python -m pytest                   # 14 tests, a few seconds
 ```
 
 ## Run it
@@ -52,6 +52,19 @@ Embedder specs:
 
 Embeddings are cached in `.atlas_cache/`, so nothing is embedded twice.
 
+**The scale bundle** takes each chapter apart into words, verses and paragraphs and measures how they reassemble, across languages:
+
+```bash
+./experiments/scales_12.sh data/bible reports/scales_12_languages.html
+```
+
+It builds one fibre per language and scale (word, verse, paragraph, whole), so the fibres form a grid, and reports:
+
+- **Scale loops:** does reassembly close?
+- **Plaquettes:** down a scale then across a language, against across then down, as in lattice gauge theory.
+- **Binding:** what the best linear reassembly of a chapter's parts misses of the whole, and whether the same chapters bind in every language.
+- **Renormalisation test:** do the top directions survive from words up to the whole?
+
 ## In Python
 
 ```python
@@ -77,6 +90,7 @@ src/atlas/corpus.py      aligned units, roll-up to coarser units, segmentation b
 src/atlas/loaders/       Bible corpus, plain parallel files
 src/atlas/embed.py       embedders and the disk cache
 src/atlas/bundle.py      connections, holonomy, twist, local holonomy, shared geometry
+src/atlas/scales.py      the scale bundle: four scales per unit, plaquettes, binding, persistence
 src/atlas/nulls.py       random rotations, shuffled and flat nulls
 src/atlas/spectra.py     eigenvalue spectra, log vs power-law decay
 src/atlas/report.py      the HTML report
@@ -87,7 +101,7 @@ tests/                   synthetic bundles where the right answer is known
 
 ## Next
 
-1. **Scale bundle.** Word, sentence, paragraph and whole as fibres, with loops across scales (your reassembly idea).
+1. **Scale bundle on your own texts,** with real paragraphs (the Bible version uses five-verse blocks).
 2. **Several translators per language,** to separate language from translator.
 3. **Translation chains** run locally with NLLB-200, plus your War and Peace rerun.
 4. **The seven views,** starting with the tensor stack.

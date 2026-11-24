@@ -83,6 +83,22 @@ def run_bundle(args) -> Path:
                         snippet_view=args.snippet_view, plotlyjs=args.plotlyjs)
 
 
+def run_scales(args) -> Path:
+    from .loaders import load_bibles
+    from .report import write_scale_report
+    from .scales import analyse_scales, build_scales
+
+    t0 = time.time()
+    corpus = load_bibles(args.bible, args.langs)
+    ss = build_scales(corpus, parent=args.parent, spec=args.embed, block=args.block, cache=EmbeddingCache(args.cache))
+    r = analyse_scales(ss, k=args.k, null_reps=args.null_reps,
+                       settings={"embedder": args.embed, "parent": args.parent, "paragraph block (verses)": args.block})
+    intro = (f"{len(ss.parents):,} {args.parent}s, each embedded at four scales (word, verse, paragraph, whole) in "
+             f"{len(ss.views)} languages: {len(ss.views) * 4} fibres. Built in {time.time() - t0:.0f} s.")
+    return write_scale_report(r, ss, args.out, args.title, intro, args.finding or [], args.caveat or [],
+                              snippet_view=args.snippet_view, plotlyjs=args.plotlyjs)
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog="atlas")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -103,10 +119,24 @@ def main(argv=None):
     bp.add_argument("--finding", action="append")
     bp.add_argument("--caveat", action="append")
     bp.add_argument("--plotlyjs", default="inline")
+    sp = sub.add_parser("scales", help="scale bundle: words, verses, paragraphs and wholes across languages")
+    sp.add_argument("--bible", required=True)
+    sp.add_argument("--langs", nargs="+", required=True)
+    sp.add_argument("--parent", default="chapter")
+    sp.add_argument("--embed", default="lsa:200")
+    sp.add_argument("--block", type=int, default=5)
+    sp.add_argument("--k", type=int, default=24)
+    sp.add_argument("--null-reps", type=int, default=5)
+    sp.add_argument("--cache", default=".atlas_cache")
+    sp.add_argument("--out", default="reports/scales.html")
+    sp.add_argument("--title", default="Scale bundle report")
+    sp.add_argument("--snippet-view")
+    sp.add_argument("--finding", action="append")
+    sp.add_argument("--caveat", action="append")
+    sp.add_argument("--plotlyjs", default="inline")
     args = p.parse_args(argv)
-    if args.cmd == "bundle":
-        out = run_bundle(args)
-        print(f"wrote {out}")
+    out = run_bundle(args) if args.cmd == "bundle" else run_scales(args)
+    print(f"wrote {out}")
 
 
 if __name__ == "__main__":
