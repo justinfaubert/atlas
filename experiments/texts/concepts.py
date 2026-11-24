@@ -42,6 +42,7 @@ import csv
 import json
 import re
 import time
+import unicodedata
 from collections import Counter
 from itertools import combinations
 from pathlib import Path
@@ -181,7 +182,7 @@ class HFInstrument:
         name, _, layer = spec.partition("@")
         self.torch = torch
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
-        kw = {"add_prefix_space": True} if any(k in name.lower() for k in ("roberta", "gpt2", "bart")) else {}
+        kw = {"add_prefix_space": True} if any(k in name.lower() for k in ("roberta", "gpt2", "bart")) and "xlm" not in name.lower() else {}
         self.tok = AutoTokenizer.from_pretrained(name, use_fast=True, **kw)
         if self.tok.pad_token is None:
             self.tok.pad_token = self.tok.eos_token
@@ -292,6 +293,18 @@ def freq_controls(occ: np.ndarray, n_tokens: int):
 # pipeline
 
 
+def read_probe_forms(path: Path) -> dict[str, list[str]] | None:
+    """``concept: form form ...`` lines -> {concept: forms}; None for a plain one-word-per-line list."""
+    lines = [ln.strip() for ln in path.read_text().splitlines() if ln.strip() and not ln.startswith("#")]
+    if not any(":" in ln for ln in lines):
+        return None
+    out = {}
+    for ln in lines:
+        c, _, fs = ln.partition(":")
+        out[c.strip()] = [unicodedata.normalize("NFC", f.lower()) for f in fs.split()]
+    return out
+
+
 def load_texts(folder: Path, cap: int):
     cat = {}
     if (folder / "catalogue.csv").exists():
@@ -299,7 +312,8 @@ def load_texts(folder: Path, cap: int):
             cat = {r["name"]: r["kind"] for r in csv.DictReader(fh)}
     texts = {}
     for f in sorted(folder.glob("*.txt")):
-        raw = re.findall(r"[A-Za-z]+|[^\sA-Za-z]", f.read_text(errors="replace"))
+        txt = unicodedata.normalize("NFC", f.read_text(errors="replace"))
+        raw = re.findall(r"[^\W\d_]+|[^\w\s]|\d+", txt)
         texts[f.stem] = raw
     return texts, cat
 
@@ -320,7 +334,13 @@ def build(a):
     vocab = Counter()
     for raw in texts.values():
         vocab.update(w.lower() for w in raw if w.isalpha())
-    lemma = make_lemma({w for w, c in vocab.items() if c >= 5})
+    forms = read_probe_forms(a.probes_file) if a.probes_file else None
+    if forms:  # a probe file with "concept: form form ..." lines: any language, explicit word forms
+        fmap = {f: c for c, fs in forms.items() for f in fs}
+        def lemma(w):
+            return fmap.get(w, w)
+    else:
+        lemma = make_lemma({w for w, c in vocab.items() if c >= 5})
     streams, lem_of_raw = {}, {}
     for t, raw in texts.items():
         lo = [lemma(w.lower()) if w.isalpha() else None for w in raw]
@@ -330,7 +350,9 @@ def build(a):
         # for neural models keep the raw tokens of the kept span, so models read real text with punctuation
         lem_of_raw[t] = (raw, lo, keep)
     probes, big_names = choose_probes(streams, a.n_probes, a.min_count, a.big)
-    if a.probes_file:
+    if forms:
+        probes = list(forms)
+    elif a.probes_file:
         probes = [w.strip() for w in a.probes_file.read_text().split() if w.strip()]
     print(f"{len(texts)} texts; {len(probes)} probes shared by the {len(big_names)} texts of >= {a.big:,} words:")
     print("  " + ", ".join(probes), flush=True)

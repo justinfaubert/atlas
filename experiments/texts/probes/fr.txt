@@ -1,0 +1,48 @@
+man: homme hommes
+woman: femme femmes
+child: enfant enfants
+people: peuple peuples
+day: jour jours
+year: année années ans
+time: temps
+life: vie vies
+death: mort
+world: monde
+word: parole paroles
+name: nom noms
+house: maison maisons
+place: lieu lieux
+end: fin
+hand: main mains
+law: loi lois
+work: oeuvre oeuvres œuvre œuvres travail
+power: puissance
+peace: paix
+war: guerre guerres
+land: terre terres
+city: ville villes
+truth: vérité
+heart: coeur coeurs cœur cœurs
+water: eau eaux
+money: argent
+hope: espoir espérance
+fear: crainte peur
+justice: justice
+question: question questions
+light: lumière
+night: nuit
+father: père pères
+brother: frère frères
+king: roi rois
+god: dieu
+good: bon bonne bons bonnes
+great: grand grande grands grandes
+small: petit petite petits petites
+new: nouveau nouvelle nouveaux nouvelles
+old: vieux vieille vieilles ancien ancienne anciens
+first: premier première premiers premières
+last: dernier dernière derniers dernières
+free: libre libres
+strong: fort forte forts fortes
+high: haut haute hauts hautes
+true: vrai vraie vrais vraies

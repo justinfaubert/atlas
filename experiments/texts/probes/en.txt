@@ -1,0 +1,48 @@
+man: man men
+woman: woman women
+child: child children
+people: people peoples
+day: day days
+year: year years
+time: time times
+life: life lives
+death: death
+world: world
+word: word words
+name: name names
+house: house houses
+place: place places
+end: end
+hand: hand hands
+law: law laws
+work: work works
+power: power
+peace: peace
+war: war wars
+land: land lands
+city: city cities
+truth: truth
+heart: heart hearts
+water: water waters
+money: money
+hope: hope
+fear: fear
+justice: justice
+question: question questions
+light: light
+night: night
+father: father fathers
+brother: brother brothers brethren
+king: king kings
+god: god
+good: good
+great: great
+small: small
+new: new
+old: old
+first: first
+last: last
+free: free
+strong: strong
+high: high
+true: true
