@@ -67,6 +67,7 @@ def main(argv=None):
     for inst in a.instruments:
         # model instruments are read as text effect (in order minus shuffled), so the model's prior drops out
         T, probes = load({"en": a.run}, inst, a.min_occ, text_effect=inst.startswith("hf"))
+        slug = inst.replace("/", "_").replace(":", "-")
         names = sorted(t for _, t in T if t in cat and t in mood)
         E = {t: T[("en", t)] for t in names}
         kind = {t: cat[t]["kind"] for t in names}
@@ -144,13 +145,13 @@ def main(argv=None):
         for i, k in enumerate(kinds):
             order = [j for j in sorted(multi, key=lambda j: -np.nan_to_num(raw[i, j], nan=-9)) if j != i]
             kres["nearest_raw_multi_text_kinds"][k] = [[kinds[j], round(float(raw[i, j]), 3)] for j in order[:6]]
-        with open(a.out / f"reliability_{inst}.csv", "w") as fh:
+        with open(a.out / f"reliability_{slug}.csv", "w") as fh:
             fh.write("text,kind,split_half_reliability\n")
             for t in names:
                 fh.write(f"{t},{kind[t]},{rel[t]:.4f}\n")
-        np.savetxt(a.out / f"kinds_disattenuated_{inst}.csv", dis, delimiter=",", fmt="%.4f",
+        np.savetxt(a.out / f"kinds_disattenuated_{slug}.csv", dis, delimiter=",", fmt="%.4f",
                    header=",".join(kinds), comments="")
-        np.savetxt(a.out / f"kinds_raw_{inst}.csv", raw, delimiter=",", fmt="%.4f", header=",".join(kinds), comments="")
+        np.savetxt(a.out / f"kinds_raw_{slug}.csv", raw, delimiter=",", fmt="%.4f", header=",".join(kinds), comments="")
 
         # 3. mood against geometry (Mantel-style regression over different-kind, map-eligible pairs)
         pairs = [(x, y) for x, y in combinations(names, 2) if map_pair(x, y) and kind[x] != kind[y]]
