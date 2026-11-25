@@ -111,7 +111,7 @@ def main(argv=None):
     a = p.parse_args(argv)
     runs = {k: Path(v) for k, v in (r.split("=", 1) for r in a.run)}
     T, probes = load(runs, a.instrument, a.min_occ, a.text_effect)
-    tag = a.instrument + ("_text_effect" if a.text_effect else "")
+    tag = a.instrument.replace("/", "_").replace(":", "-") + ("_text_effect" if a.text_effect else "")
     keys = list(T)
     rng = np.random.default_rng(a.seed)
     a.out.mkdir(parents=True, exist_ok=True)

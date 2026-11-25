@@ -15,13 +15,4 @@ for L in en fr de; do
     --probes-file experiments/texts/probes/$L.txt --occ-cap 200 --sizes 20000 50000 100000 \
     --instruments svd ppmi $INST 2>&1 | tee runs/multi_$L.log
 done
-for I in svd ppmi $INST; do
-  python experiments/texts/compare_languages.py --run en=runs/multi_en --run fr=runs/multi_fr --run de=runs/multi_de \
-    --instrument "$I" --out runs/multi_compare | tee -a runs/multi_compare.log
-done
-for I in $INST; do
-  python experiments/texts/compare_languages.py --run en=runs/multi_en --run fr=runs/multi_fr --run de=runs/multi_de \
-    --instrument "$I" --text-effect --out runs/multi_compare | tee -a runs/multi_compare.log
-done
-(cd runs && zip -qr multi_results.zip multi_en multi_fr multi_de multi_compare multi_*.log)
-echo "Done: runs/multi_results.zip"
+bash experiments/texts/compare_multi.sh
