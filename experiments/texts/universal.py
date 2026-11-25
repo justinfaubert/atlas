@@ -39,7 +39,16 @@ from scipy.stats import rankdata
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from compare_languages import load  # noqa: E402
 
-ADJ = {"good", "great", "small", "new", "old", "first", "last", "free", "strong", "high", "true"}
+ADJ = {"good", "great", "small", "new", "old", "first", "last", "free", "strong", "high", "true", "full", "long",
+       "hard", "deep", "clear", "common", "low", "short", "bad", "equal", "ready", "possible", "necessary", "open",
+       "second", "third", "holy", "young", "important"}
+VERB = {"give", "take", "see", "say", "come", "go", "keep", "send", "know", "hear", "speak", "live", "love",
+        "believe", "call", "find", "bring", "build", "write", "ask", "die"}
+
+
+def pos_of(c):
+    return "a" if c in ADJ else "v" if c in VERB else "n"
+
 CLICS = {"man": "MAN", "woman": "WOMAN", "child": "CHILD (YOUNG HUMAN)", "people": "PEOPLE",
          "day": "DAY (NOT NIGHT)", "year": "YEAR", "time": "TIME", "life": "LIFE", "death": "DEATH",
          "world": "WORLD", "word": "WORD", "name": "NAME", "house": "HOUSE", "place": "PLACE (POSITION)",
@@ -49,7 +58,19 @@ CLICS = {"man": "MAN", "woman": "WOMAN", "child": "CHILD (YOUNG HUMAN)", "people
          "light": "LIGHT (RADIATION)", "night": "NIGHT", "father": "FATHER", "brother": "BROTHER",
          "king": "KING", "god": "GOD", "good": "GOOD", "great": "BIG", "small": "SMALL", "new": "NEW",
          "old": "OLD", "first": "FIRST", "last": "LAST (FINAL)", "free": "FREE", "strong": "STRONG",
-         "high": "HIGH", "true": "TRUE"}
+         "high": "HIGH", "true": "TRUE",
+         "spirit": "SPIRIT", "face": "FACE", "side": "SIDE", "field": "FIELD", "number": "NUMBER", "part": "PART",
+         "head": "HEAD", "eye": "EYE", "mother": "MOTHER", "son": "SON", "friend": "FRIEND", "enemy": "ENEMY",
+         "judgment": "JUDGMENT", "state": "STATE (POLITICS)", "sea": "SEA", "fire": "FIRE", "blood": "BLOOD",
+         "voice": "VOICE", "promise": "PROMISE", "sin": "SIN", "bread": "BREAD", "heaven": "HEAVEN",
+         "thing": "THING", "answer": "ANSWER", "help": "HELP", "reason": "REASON", "force": "STRENGTH",
+         "price": "PRICE", "change": "CHANGE", "week": "WEEK", "month": "MONTH", "full": "FULL", "long": "LONG",
+         "hard": "HARD", "deep": "DEEP", "clear": "CLEAR", "low": "LOW", "short": "SHORT", "bad": "BAD",
+         "ready": "READY", "necessary": "NECESSARY", "open": "OPEN", "second": "SECOND", "third": "THIRD",
+         "holy": "HOLY", "young": "YOUNG", "give": "GIVE", "take": "TAKE", "see": "SEE", "say": "SAY",
+         "come": "COME", "go": "GO", "keep": "KEEP", "send": "SEND", "know": "KNOW (SOMETHING)", "hear": "HEAR",
+         "speak": "SPEAK", "live": "LIVE", "love": "LOVE", "believe": "BELIEVE", "call": "CALL", "find": "FIND",
+         "bring": "BRING", "build": "BUILD", "write": "WRITE", "ask": "ASK (INQUIRE)", "die": "DIE"}
 
 
 # ---------------------------------------------------------------------------
@@ -60,7 +81,7 @@ def ref_wordnet(concepts, nltk_dir):
     import nltk
     nltk.data.path.insert(0, str(nltk_dir))
     from nltk.corpus import wordnet as wn
-    syn = {c: wn.synsets(c, pos="a" if c in ADJ else "n") or wn.synsets(c) for c in concepts}
+    syn = {c: wn.synsets(c, pos=pos_of(c)) or wn.synsets(c) for c in concepts}
     n = len(concepts)
     S = np.full((n, n), np.nan)
     for i, j in combinations(range(n), 2):
@@ -227,7 +248,7 @@ def main(argv=None):
     p.add_argument("--count", nargs="*", default=["svd", "ppmi"])
     p.add_argument("--neural", nargs="*", default=["hf:xlm-roberta-base", "hf:bert-base-multilingual-cased",
                                                      "hf:sentence-transformers/LaBSE"])
-    p.add_argument("--null-model", default="hf-random:xlm-roberta-base")
+    p.add_argument("--null-model", default="hf-random:xlm-roberta-base", help="'none' to skip")
     p.add_argument("--refs", type=Path, required=True,
                    help="folder with nltk_data/, Ratings_Warriner_et_al.csv, Concreteness_ratings_Brysbaert_et_al_BRM.txt, "
                         "clics/graphs/network-3-families.gml, simlex999.csv, men.csv")
@@ -235,6 +256,8 @@ def main(argv=None):
                    "phrase-partner vs used-alike test")
     p.add_argument("--forms", type=Path, help="probe forms file for --corpus (e.g. probes/en.txt)")
     p.add_argument("--out", type=Path, required=True)
+    p.add_argument("--min-share", type=float, default=1.0,
+                   help="share of each group's texts that must contain a concept (1.0 = every text)")
     p.add_argument("--perms", type=int, default=2000)
     p.add_argument("--seed", type=int, default=0)
     a = p.parse_args(argv)
@@ -242,7 +265,9 @@ def main(argv=None):
     rng = np.random.default_rng(a.seed)
     a.out.mkdir(parents=True, exist_ok=True)
 
-    instruments = [(i, False) for i in a.count] + [(i, True) for i in a.neural] + [(a.null_model, True)]
+    instruments = [(i, False) for i in a.count] + [(i, True) for i in a.neural]
+    if a.null_model != "none":
+        instruments.append((a.null_model, True))
     data = {}
     for inst, te in instruments:
         T, probes = load(runs, inst, 5, text_effect=te)
@@ -250,10 +275,13 @@ def main(argv=None):
     concepts = probes
     n = len(concepts)
     # concepts present in every text of every group, for every instrument
+    # a concept is kept when, for every instrument and every (language, kind) group, at least --min-share of
+    # the group's texts contain it often enough (1.0 = every text)
     common = np.ones(n, bool)
     for T in data.values():
-        for e in T.values():
-            common &= e["ok"]
+        for g in {(k[0], e["kind"]) for k, e in T.items()}:
+            oks = np.array([e["ok"] for k, e in T.items() if (k[0], e["kind"]) == g])
+            common &= oks.mean(axis=0) >= a.min_share - 1e-9
     cidx = np.where(common)[0]
     cn = [concepts[i] for i in cidx]
     iu = np.triu_indices(len(cidx), 1)
@@ -261,7 +289,7 @@ def main(argv=None):
     I = -np.ones((len(cidx), len(cidx)), int)
     I[iu] = np.arange(len(iu[0]))
     I = np.maximum(I, I.T)
-    print(f"{len(cidx)} concepts in every text: {', '.join(cn)}")
+    print(f"{len(cidx)} concepts kept (min share {a.min_share}): {', '.join(cn)}")
 
     def upper(S):
         return S[np.ix_(cidx, cidx)][iu]
@@ -271,8 +299,19 @@ def main(argv=None):
     cons = {}
     for inst, T in data.items():
         for g in groups:
-            zs = [zrank(upper(e["full"])) for k, e in T.items() if (k[0], e["kind"]) == g]
-            cons[(inst, g)] = np.mean(zs, axis=0)
+            zs = []
+            for k, e in T.items():
+                if (k[0], e["kind"]) != g:
+                    continue
+                v = upper(e["full"]).astype(float)
+                okc = e["ok"][cidx]
+                okp = (okc[:, None] & okc[None, :])[iu]
+                z = np.full(len(v), np.nan)
+                z[okp] = zrank(v[okp])
+                zs.append(z)
+            with np.errstate(all="ignore"):
+                c = np.nanmean(zs, axis=0)
+            cons[(inst, g)] = np.nan_to_num(c)  # a pair no text in the group holds counts as average
     real = [i for i, _ in instruments if i != a.null_model]
     universal = {inst: np.mean([cons[(inst, g)] for g in groups], axis=0) for inst, _ in instruments}
     U = np.mean([zrank(universal[i]) for i in real], axis=0)
@@ -296,8 +335,9 @@ def main(argv=None):
     res["group_vs_groups_differing_in_language_and_kind"] = cross
     res["universal_agreement_between_instruments"] = {
         f"{x}~{y}": float(np.corrcoef(universal[x], universal[y])[0, 1]) for x, y in combinations(real, 2)}
-    res["universal_vs_null_model"] = {i: float(np.corrcoef(universal[i], universal[a.null_model])[0, 1])
-                                      for i in real}
+    if a.null_model != "none":
+        res["universal_vs_null_model"] = {i: float(np.corrcoef(universal[i], universal[a.null_model])[0, 1])
+                                          for i in real}
     # consistency of each pair: share of (instrument, group) cells where the pair is above that cell's median
     cells = np.array([cons[(i, g)] > np.median(cons[(i, g)]) for i in real for g in groups])
     share_high = cells.mean(axis=0)
@@ -323,7 +363,7 @@ def main(argv=None):
         refs["corpus_phrase_partners"] = first
         refs["corpus_used_alike"] = second
         res["corpus_counts"] = dict(zip(cn, cf.astype(int).tolist()))
-    pos = np.array([[float((x in ADJ) == (y in ADJ)) for y in cn] for x in cn])
+    pos = np.array([[float(pos_of(x) == pos_of(y)) for y in cn] for x in cn])
     posv = pos[iu]
     # frequency controls: mean log frequency over all texts, as pair sum and absolute difference
     lf = np.mean([e["logf"][cidx] for T in data.values() for e in T.values()], axis=0)

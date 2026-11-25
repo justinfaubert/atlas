@@ -1,0 +1,123 @@
+man: mann männer männern
+woman: frau frauen weib weiber
+child: kind kinder kindern
+people: volk völker volkes
+day: tag tage tagen tages
+year: jahr jahre jahren jahres
+time: zeit zeiten
+life: leben lebens
+death: tod todes
+world: welt
+word: wort worte wortes
+name: name namen
+house: haus häuser hause hauses
+place: ort orte
+end: ende
+hand: hand hände händen
+law: gesetz gesetze gesetzes
+work: werk werke arbeit
+power: macht
+peace: frieden friede
+war: krieg kriege krieges
+land: land länder lande landes
+city: stadt städte
+truth: wahrheit
+heart: herz herzen
+water: wasser
+money: geld
+hope: hoffnung
+fear: furcht angst
+justice: gerechtigkeit
+question: frage fragen
+light: licht
+night: nacht
+father: vater väter
+brother: bruder brüder
+king: könig könige
+god: gott gottes
+good: gut gute guten guter gutes
+great: groß große großen großer großes gross grosse grossen grosser grosses
+small: klein kleine kleinen kleiner kleines
+new: neu neue neuen neuer neues
+old: alt alte alten alter altes
+first: erste ersten erster erstes
+last: letzte letzten letzter letztes
+free: frei freie freien freier
+strong: stark starke starken starker
+high: hoch hohe hohen hoher
+true: wahr wahre wahren
+spirit: geist geister geistes
+face: angesicht gesicht angesichts
+side: seite seiten
+field: feld felder feldes
+number: zahl
+part: teil teile
+head: haupt kopf häupter köpfe hauptes
+eye: auge augen
+mother: mutter mütter
+son: sohn söhne söhnen sohnes
+friend: freund freunde freunden
+enemy: feind feinde feinden
+freedom: freiheit
+judgment: gericht urteil gerichte
+state: staat staaten
+sea: meer meere meeres
+fire: feuer
+blood: blut blutes
+voice: stimme
+nation: nation nationen
+promise: verheißung verheissung versprechen
+sin: sünde sünden
+bread: brot brote brotes
+heaven: himmel himmels
+thing: ding dinge dingen sache sachen
+answer: antwort
+help: hilfe
+reason: grund gründe
+force: kraft kräfte
+price: preis preise
+example: beispiel beispiele
+change: änderung änderungen veränderung veränderungen
+week: woche wochen
+month: monat monate monaten
+knowledge: erkenntnis kenntnis
+full: voll volle vollen voller volles
+long: lang lange langen langer
+hard: hart harte harten
+deep: tief tiefe tiefen tiefer
+clear: klar klare klaren
+common: gemeinsam gemeinsame gemeinsamen gemeinsamer
+low: niedrig niedrige niedrigen
+short: kurz kurze kurzen
+bad: schlecht schlechte schlechten schlechter
+equal: gleich gleiche gleichen
+ready: bereit
+possible: möglich mögliche möglichen
+necessary: notwendig notwendige notwendigen nötig
+open: offen offene offenen öffnen öffnete geöffnet
+second: zweite zweiten zweiter
+third: dritte dritten dritter
+holy: heilig heilige heiligen
+young: jung junge jungen
+important: wichtig wichtige wichtigen
+give: geben gebe gibst gibt gebt gab gabst gaben gegeben gäbe gib
+take: nehmen nehme nimmst nimmt nehmt nahm nahmen genommen nimm
+see: sehen sehe siehst sieht seht sah sahen gesehen siehe sieh
+say: sagen sage sagst sagt sagte sagten gesagt
+come: kommen komme kommst kommt kam kamen gekommen käme
+go: gehen gehe gehst geht ging gingen gegangen
+keep: halten halte hältst hält haltet hielt hielten gehalten
+send: senden sende sendet sandte sandten gesandt schicken schickt schickte geschickt
+know: wissen weiß weiss weißt wisst wusste wußte wussten wußten gewusst gewußt kennen kenne kennst kennt kannte kannten gekannt
+hear: hören höre hörst hört hörte hörten gehört
+speak: sprechen spreche sprichst spricht sprach sprachen gesprochen redet redete redeten geredet
+live: lebe lebst lebt lebte lebten gelebt
+love: lieben liebe liebst liebt liebte liebten geliebt
+believe: glauben glaube glaubst glaubt glaubte glaubten geglaubt
+call: rufen rufe rufst ruft rief riefen gerufen nennen nennt nannte nannten genannt
+find: finden finde findest findet fand fanden gefunden
+bring: bringen bringe bringst bringt brachte brachten gebracht
+build: bauen baue baust baut baute bauten gebaut
+write: schreiben schreibe schreibst schreibt schrieb schrieben geschrieben
+ask: fragt fragst fragte fragten gefragt
+die: sterben sterbe stirbst stirbt starb starben gestorben

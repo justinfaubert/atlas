@@ -1,0 +1,123 @@
+man: man men
+woman: woman women
+child: child children
+people: people peoples
+day: day days
+year: year years
+time: time times
+life: life lives
+death: death
+world: world
+word: word words
+name: name names
+house: house houses
+place: place places
+end: end
+hand: hand hands
+law: law laws
+work: work works
+power: power
+peace: peace
+war: war wars
+land: land lands
+city: city cities
+truth: truth
+heart: heart hearts
+water: water waters
+money: money
+hope: hope
+fear: fear
+justice: justice
+question: question questions
+light: light
+night: night
+father: father fathers
+brother: brother brothers brethren
+king: king kings
+god: god
+good: good
+great: great
+small: small
+new: new
+old: old
+first: first
+last: last
+free: free
+strong: strong
+high: high
+true: true
+spirit: spirit spirits
+face: face faces
+side: side sides
+field: field fields
+number: number numbers
+part: part parts
+head: head heads
+eye: eye eyes
+mother: mother mothers
+son: son sons
+friend: friend friends
+enemy: enemy enemies
+freedom: freedom liberty
+judgment: judgment judgments judgement judgements
+state: state states
+sea: sea seas
+fire: fire fires
+blood: blood
+voice: voice voices
+nation: nation nations
+promise: promise promises
+sin: sin sins
+bread: bread
+heaven: heaven heavens
+thing: thing things
+answer: answer answers
+help: help
+reason: reason reasons
+force: force forces
+price: price prices
+example: example examples
+change: change changes
+week: week weeks
+month: month months
+knowledge: knowledge
+full: full
+long: long
+hard: hard
+deep: deep
+clear: clear
+common: common
+low: low
+short: short
+bad: bad
+equal: equal
+ready: ready
+possible: possible
+necessary: necessary
+open: open opens opened
+second: second
+third: third
+holy: holy
+young: young
+important: important
+give: give gives gave given giving giveth givest
+take: take takes took taken taking taketh
+see: see sees saw seen seeing seeth
+say: say says said saying saith sayest
+come: come comes came coming cometh comest
+go: go goes went gone going goeth
+keep: keep keeps kept keeping keepeth
+send: send sends sent sending sendeth
+know: know knows knew known knowing knoweth knowest
+hear: hear hears heard hearing heareth
+speak: speak speaks spoke spoken speaking spake speaketh
+live: live lived living liveth
+love: love loves loved loving loveth
+believe: believe believes believed believing believeth
+call: call calls called calling calleth
+find: find finds found finding findeth
+bring: bring brings brought bringing bringeth
+build: build builds built building buildeth
+write: write writes wrote written writing
+ask: ask asks asked asking
+die: die dies died dying dieth

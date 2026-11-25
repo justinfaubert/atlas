@@ -1,0 +1,123 @@
+man: homme hommes
+woman: femme femmes
+child: enfant enfants
+people: peuple peuples
+day: jour jours
+year: année années ans
+time: temps
+life: vie vies
+death: mort
+world: monde
+word: parole paroles
+name: nom noms
+house: maison maisons
+place: lieu lieux
+end: fin
+hand: main mains
+law: loi lois
+work: oeuvre oeuvres œuvre œuvres travail
+power: puissance
+peace: paix
+war: guerre guerres
+land: terre terres
+city: ville villes
+truth: vérité
+heart: coeur coeurs cœur cœurs
+water: eau eaux
+money: argent
+hope: espoir espérance
+fear: crainte peur
+justice: justice
+question: question questions
+light: lumière
+night: nuit
+father: père pères
+brother: frère frères
+king: roi rois
+god: dieu
+good: bon bonne bons bonnes
+great: grand grande grands grandes
+small: petit petite petits petites
+new: nouveau nouvelle nouveaux nouvelles
+old: vieux vieille vieilles ancien ancienne anciens
+first: premier première premiers premières
+last: dernier dernière derniers dernières
+free: libre libres
+strong: fort forte forts fortes
+high: haut haute hauts hautes
+true: vrai vraie vrais vraies
+spirit: esprit esprits
+face: visage visages
+side: côté côtés
+field: champ champs
+number: nombre nombres
+part: partie parties
+head: tête têtes
+eye: oeil œil yeux
+mother: mère mères
+son: fils
+friend: ami amis amie amies
+enemy: ennemi ennemis
+freedom: liberté libertés
+judgment: jugement jugements
+state: état états
+sea: mer mers
+fire: feu feux
+blood: sang
+voice: voix
+nation: nation nations
+promise: promesse promesses
+sin: péché péchés
+bread: pain pains
+heaven: ciel cieux
+thing: chose choses
+answer: réponse réponses
+help: aide
+reason: raison raisons
+force: force forces
+price: prix
+example: exemple exemples
+change: changement changements
+week: semaine semaines
+month: mois
+knowledge: connaissance connaissances
+full: plein pleine pleins pleines
+long: long longue longs longues
+hard: dur dure durs dures
+deep: profond profonde profonds profondes
+clear: clair claire clairs claires
+common: commun commune communs communes
+low: bas basse basses
+short: court courte courts courtes
+bad: mauvais mauvaise mauvaises
+equal: égal égale égaux égales
+ready: prêt prête prêts prêtes
+possible: possible possibles
+necessary: nécessaire nécessaires
+open: ouvert ouverte ouverts ouvertes ouvrir ouvre ouvrit
+second: second seconde deuxième
+third: troisième
+holy: saint sainte saints saintes
+young: jeune jeunes
+important: important importante importants importantes
+give: donner donne donnes donnons donnez donnent donné donnée donnés données donna donnèrent donnait donnaient donnerai donnera donnerons donnerez donneront donnant
+take: prendre prend prends prenons prenez prennent pris prise prises prit prirent prenait prendrai prendra prendront prenant
+see: voir vois voit voyons voyez voient vu vue vus vues virent voyait verrai verra verront voyant
+say: dire dis dit disons dites disent dits dirent disait disaient dirai dira diront disant
+come: venir viens vient venons venez viennent venu venue venus venues vint vinrent venait viendrai viendra viendront venant
+go: aller vais vas va allons allez vont allé allée allés allées alla allèrent allait irai ira iront allant
+keep: garder garde gardes gardons gardez gardent gardé gardée gardés gardées garda gardait gardera
+send: envoyer envoie envoies envoyons envoyez envoient envoyé envoyée envoyés envoya enverrai enverra
+know: savoir sais sait savons savez savent su sut savait saurai saura connaître connaitre connais connaît connait connaissons connaissez connaissent connu connue connus connut connaissait
+hear: entendre entends entend entendons entendez entendent entendu entendue entendus entendit entendirent entendait
+speak: parler parle parles parlons parlez parlent parlé parla parlèrent parlait parlera parlant
+live: vivre vivons vivez vivent vécu vécut vivait vivra vivant
+love: aimer aime aimes aimons aimez aiment aimé aimée aimés aima aimait aimera
+believe: croire crois croit croyons croyez croient cru crue crurent crut croyait croira
+call: appeler appelle appelles appelons appelez appellent appelé appelée appelés appela appelait appellera
+find: trouver trouve trouves trouvons trouvez trouvent trouvé trouvée trouvés trouva trouvèrent trouvait trouvera
+bring: apporter apporte apportent apporté apporta amener amène amènent amené amena
+build: bâtir bâtit bâti bâtie bâtirent construire construit construite construits construisent
+write: écrire écris écrit écrite écrits écrivit écrivent écrivez
+ask: demander demande demandes demandons demandez demandent demandé demanda demandait
+die: mourir meurt meurs mourons mourez meurent mourut moururent mourra mourait

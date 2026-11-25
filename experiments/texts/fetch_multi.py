@@ -27,7 +27,9 @@ from fetch import BIBLE_URL, clean_bible, get  # noqa: E402
 BIBLES = {
     "en": ["KJV", "YLT", "BBE", "ASV", "BSB", "LEB", "DRC", "Rotherham", "Darby"],
     "fr": ["FreBBB", "FreCrampon", "FreJND", "FreBDM1744"],
-    "de": ["GerElb1871", "GerElb1905", "GerSch", "GerMenge", "GerZurcher", "GerBoLut", "GerTextbibel",
+    # GerBoLut is left out: the scrollmapper file is OCR-damaged (umlauts stripped, so Töchter reads as Tochter;
+    # ß often read as "ti")
+    "de": ["GerElb1871", "GerElb1905", "GerSch", "GerMenge", "GerZurcher", "GerTextbibel",
            "GerGruenewald", "GerTafel"],
 }
 EUROPARL_URL = "https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/europarl_raw.zip"
