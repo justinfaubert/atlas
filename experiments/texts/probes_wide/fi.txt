@@ -1,0 +1,123 @@
+man: mies* miehe* miehi*
+woman: nainen naise* naisi* naista vaimo*
+child: lapsi lapse* lapsi* lasta lasten
+people: kansa kansan kansaa kansana kansaksi kansalle kansalta kansassa kansasta kansaan kansansa kansani kansasi kansat kansojen kansoja kansoille kansoista kansoihin kansoilta kansoissa
+day: päivä* päiviä päivien päivinä päiviin päivissä päivistä päiville päivillä päivinänsä
+year: vuosi vuoden vuonna vuodessa vuodesta vuoteen vuodelle vuodella vuodet vuotta vuosia vuosien vuosina vuosiin vuosissa vuosista vuosille vuotensa
+time: aika aikaa ajan ajat aikana aikaan ajassa ajasta ajalle ajalla aikoina aikojen aikoja aikoihin aikansa ajallaan
+life: elämä*
+death: kuolema*
+world: maailma*
+word: sana*
+name: nimi nimen nimeä nimessä nimestä nimeen nimellä nimelle nimet nimiä nimien nimissä nimiin nimensä nimeni nimesi nimemme
+house: huone* talo talon taloa talossa talosta taloon talolle talot taloja talojen taloissa taloihin
+place: paikka paikan paikkaa paikassa paikasta paikkaan paikalla paikalle paikalta paikat paikkoja paikkojen paikoissa paikkoihin paikoille paikoilla paikkansa paikalleen
+end: loppu loppua lopun lopussa lopusta loppuun lopulle loput
+hand: käsi käden kättä kädessä kädestä käteen kädellä kädelle kädet käsiä käsien käsissä käsiin käsillä käsille kätensä kätesi käteni kätemme käsiensä käsistä
+law: laki lain lakia laissa laista lakiin lait lakeja lakien laeissa lakeihin lakinsa
+work: työ* töitä töihin töistä töissä tekonsa
+power: valta vallan valtaa vallassa vallasta valtaan vallalla vallat valtansa
+peace: rauha*
+war: sota sodan sotaa sodassa sodasta sotaan sodat sotia sotien sotiin
+land: maa maan maata maassa maasta maahan maalla maalle maat maita maiden maissa maihin maansa
+city: kaupunki* kaupungi*
+truth: totuu*
+heart: sydä*
+water: vesi* vede* vettä vetten
+money: raha rahan rahaa rahassa rahasta rahaan rahalla rahat rahoja rahansa
+hope: toivo*
+fear: pelko pelon pelkoa pelossa pelosta pelkoon pelätä pelkää pelkäsi pelkäävät pelätkää pelkäsivät pelkään
+justice: oikeu*
+question: kysymy*
+light: valo* valkeu*
+night: yö yön yötä yössä yöllä yöt öitä öiden öisin
+father: isä*
+brother: veli* velje* veljiä
+king: kuningas kuninkaa* kuninkai*
+god: jumala*
+good: hyvä hyvän hyvää hyvässä hyvästä hyvään hyvälle hyvällä hyvät hyviä hyvien hyvissä
+great: suuri suure* suurt* suuri*
+small: pieni piene* pient* pieni*
+new: uusi uuden uutta uudessa uudesta uuteen uudet uusia uusien uusissa uusiin uudelle uudella
+old: vanha vanhan vanhaa vanhat vanhoja vanhassa vanhasta vanhaan vanhalle vanhoille
+first: ensimmäi* ensi
+last: viimei* -viimein
+free: vapaa*
+strong: vahva* väkevä*
+high: korkea*
+true: tosi totta totinen totisen totista todellinen todellisen
+spirit: henki hengen henkeä hengessä hengestä henkeen hengellä hengelle henget henkiä henkensä henkeni
+face: kasvot kasvoja kasvojen kasvoihin kasvoista kasvoillaan kasvonsa kasvoni kasvosi kasvoissa kasvoilla kasvoille
+side: puoli puole* puolt*
+field: pelto pellon peltoa pellolla pellolle pellot peltoja kenttä kentän kenttää kentällä
+number: luku luvun lukua luvussa luvut lukuja lukumäärä*
+part: osa osan osassa osasta osaan osat osia osien osissa
+head: pää pään päätä päässä päähän päät päitä päänsä
+eye: silmä*
+mother: äiti* äidi*
+son: poika* poja*
+friend: ystävä*
+enemy: vihollis* vihollinen
+freedom: vapau*
+judgment: tuomio*
+state: valtio*
+sea: meri mere* meri*
+fire: tulta tulessa tulella tuleen
+blood: veri veren verta veressä verestä vereen verellä verensä
+voice: ääni äänen ääntä äänellä äänensä ääneni äänet
+nation: kansakun*
+promise: lupaus lupauksen lupausta lupaukset lupauksia lupaukse*
+sin: synti*
+bread: leipä* leivä*
+heaven: taivas taivaa* taivai*
+thing: asia*
+answer: vastaus vastauksen vastausta vastaukse* vastauksia
+help: apu avun apua avuksi avulla avussa
+reason: syy syyn syytä syyt syitä syystä
+force: voima*
+price: hinta hinnan hintaa hinnat hintoja hinnoissa hinnalla
+example: esimerki* esimerkki*
+change: muutos muutokse* muutosta muutoksia
+week: viikko* viiko*
+month: kuukau*
+knowledge: tieto* tiedo*
+full: täysi täyde* täynnä täyttä
+long: pitkä*
+hard: kova*
+deep: syvä*
+clear: selvä*
+common: yhteinen yhteisen yhteistä yhteiset yhteisiä yhteisessä yhteiseen
+low: matala* alhai*
+short: lyhy*
+bad: huono*
+equal: yhtäläi* tasavertai*
+ready: valmi*
+possible: mahdolli*
+necessary: tarpeelli* välttämät*
+open: avoin avoimen avointa avoimet avata avaa avasi avasivat avattiin avattu auki avaan
+second: toinen toisen toista toiseen toisessa toisena
+third: kolmas kolmanne* kolmatta
+holy: pyhä*
+young: nuori nuore* nuori* nuort*
+important: tärkeä*
+give: anta* anto* annoi* anne*
+take: otta* otti* ota* otet*
+see: näke* näki* näh* näe*
+say: sano*
+come: tule* tulla tuli tulivat tulin tulit tulimme tulitte tullut tulleet tultu
+go: menee menen menet menemme menette menevät meni menivät menin menit mennä mennyt menneet menkää mene menköön
+keep: pitä* piti* pidä*
+send: lähettä* lähetti* lähetä*
+know: tietä* tiedä* tiesi* tunte* tunsi*
+hear: kuule* kuuli* kuulla kuull*
+speak: puhu*
+live: elää elävät elävä elävän elävää elävien elänyt elivät elämme elätte elän elät eläköön
+love: rakast* rakkau*
+believe: usko*
+call: kutsu*
+find: löytä* löysi* löydä* löyty*
+bring: tuoda tuovat toi toivat tuokaa tuoden tuonut tuoneet tuotiin
+build: rakenta* rakensi* rakennet* rakenna*
+write: kirjoit*
+ask: kysyi kysyivät kysyä kysyy kysyn kysyt kysymme kysytte kysyvät kysykää
+die: kuoli kuolivat kuolla kuolee kuolevat kuollut kuolleet kuolisi kuolkoon kuolen kuolet kuolette

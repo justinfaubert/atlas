@@ -31,9 +31,11 @@ BIBLES = {
     # ß often read as "ti")
     "de": ["GerElb1871", "GerElb1905", "GerSch", "GerMenge", "GerZurcher", "GerTextbibel",
            "GerGruenewald", "GerTafel"],
+    # Finnish (Uralic): 1933/38 church Bible, Biblia (1933 OT with the 1776 NT), and the 2017 STLK
+    "fi": ["FinPR", "FinBiblia", "FinSTLK2017"],
 }
 EUROPARL_URL = "https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/europarl_raw.zip"
-EP_DIR = {"en": "english", "fr": "french", "de": "german"}
+EP_DIR = {"en": "english", "fr": "french", "de": "german", "fi": "finnish"}
 
 
 def main(argv=None):
@@ -44,8 +46,9 @@ def main(argv=None):
     a = p.parse_args(argv)
     ep = zipfile.ZipFile(io.BytesIO(get(EUROPARL_URL)))
     # use only sitting days present in every language, so part k is the same debates in each language
+    # (always intersect with English, French and German, so a later language gets the same parts)
     days = {lang: {Path(n).stem for n in ep.namelist() if n.startswith(f"europarl_raw/{EP_DIR[lang]}/ep-")}
-            for lang in a.langs}
+            for lang in set(a.langs) | {"en", "fr", "de"}}
     common = sorted(set.intersection(*days.values()))
     for lang in a.langs:
         out = a.out / lang

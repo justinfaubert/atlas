@@ -336,9 +336,22 @@ def build(a):
         vocab.update(w.lower() for w in raw if w.isalpha())
     forms = read_probe_forms(a.probes_file) if a.probes_file else None
     if forms:  # a probe file with "concept: form form ..." lines: any language, explicit word forms
-        fmap = {f: c for c, fs in forms.items() for f in fs}
+        # exact forms; "stem*" matches any word starting with stem (longest stem wins; for languages with many
+        # endings, such as Finnish); "-word" excludes an exact word a stem would otherwise catch
+        fmap = {f: c for c, fs in forms.items() for f in fs if not f.endswith("*") and not f.startswith("-")}
+        stems = sorted(((f[:-1], c) for c, fs in forms.items() for f in fs if f.endswith("*")),
+                       key=lambda x: -len(x[0]))
+        excl = {f[1:] for fs in forms.values() for f in fs if f.startswith("-")}
+        cache = {}
+
         def lemma(w):
-            return fmap.get(w, w)
+            if w in fmap:
+                return fmap[w]
+            if not stems or w in excl:
+                return w
+            if w not in cache:
+                cache[w] = next((c for st, c in stems if w.startswith(st)), w)
+            return cache[w]
     else:
         lemma = make_lemma({w for w, c in vocab.items() if c >= 5})
     streams, lem_of_raw = {}, {}
