@@ -119,3 +119,60 @@ NT: +0.20 for shared density, and -0.14 (CI includes 0) for the spread of bits.
   number. The test is the spread, not the level.
 - The Hebrew and Greek files here are not the original texts with vowels, so the "originals carry fewer bits"
   idea can't be tested with them.
+
+# Digging deeper (2026-11-25, evening)
+
+Code: info_strength.py (PPMd ladder and data curve), info_profile.py (within-verse profile),
+audio/wilderness_durations.py (CMU Wilderness durations).
+
+## A stronger estimator leaves the spread at about 7.5%
+
+| instrument | bits per verse (median) | spread across 56 languages |
+|---|---|---|
+| lzma | 252 | 9.0% |
+| character model, order 6 | 230 | 7.2% |
+| PPMd, order 16 | 207 | 7.7% |
+
+- PPMd orders: the spread goes 14.3% (order 2), 11.3%, 8.9%, 7.7% (order 6), then stays at 7.6-7.7% through
+  order 16.
+- More text, PPMd at order 16: the spread goes from 9.0% at 768 verses to 7.7% at 24,563, which is about -0.25
+  points per doubling. lzma goes from 10.4% to 9.0%.
+- NT set: 10.1% (PPMd) against 26.7% for characters.
+- The Hilberg-style extrapolation is unstable (the full-set fit diverges for some languages), so it isn't
+  reported.
+- Reading: the 7% is not mainly estimator noise. These translations really do differ by about 5-8% in
+  information, and part of that is orthography (abjads) and translation lineage (Marathi/Nepali).
+
+## Inside a verse, information is spread evenly, except at the end
+
+- The share of a verse's bits in its first half has a median of 0.498, and every one of the 56 languages falls
+  between 0.484 and 0.522. That fits uniform information density.
+- Bits per word by fifth of the verse:
+
+| group | first fifth | 2nd | 3rd | 4th | last fifth |
+|---|---|---|---|---|---|
+| SVO (29) | 0.95 | 1.00 | 1.00 | 0.98 | 1.08 |
+| SOV (15) | 0.98 | 1.01 | 1.01 | 1.00 | 1.00 |
+| verb-initial (6) | 0.93 | 0.99 | 1.00 | 1.00 | 1.09 |
+
+- SOV minus SVO in the last fifth: -0.075, permutation p 0.0002. The extremes are Japanese (last fifth 0.76) and
+  Malayalam, Telugu and Kannada, where the final verb ending is predictable.
+- In SVO and verb-initial languages, new objects and names come last.
+- Caveat: an order-6 character model measures local predictability, not surprisal over the whole sentence.
+
+## Spoken aloud, time follows length, not bits (rough first look)
+
+- Source: CMU Wilderness LangList.txt, aligned hours per read NT recording, about 700 languages. 41 of our NT
+  languages matched by ISO code. Recordings with under 10 aligned hours were dropped as failed alignments,
+  leaving 31.
+- Log hours vs log characters: r 0.84, slope 1.09. Log hours vs log bits: r 0.69, but the partial correlation
+  given characters is 0.09.
+- Rates: characters per second spread 14% (median 10.2), bits per second spread 21% (median 22.5, written-text
+  bits).
+- So in these readings the speaking rate is steadier in sounds than in information. The conservation is in the
+  message, not in time.
+- Caveats:
+  - The recordings use other translations.
+  - Aligned hours depend on alignment coverage. Repeat recordings of the same language differ by a median of 24%.
+  - Bits here are of the written text, not the speech.
+- A clean test needs verse-level alignments, which means running the festvox pipeline on bible.is audio.

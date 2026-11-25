@@ -1,0 +1,85 @@
+41 matched of 84
+Arabic arb 6.0 1 [6.0]
+Aukan-NT djk 21.5 1 [21.5]
+Basque-NT eus 18.4 1 [18.4]
+Cabecar-NT cjp 16.4 1 [16.4]
+Cakchiquel-NT cak 24.1 6 [27.8, 23.2, 26.7, 22.8, 25.7, 18.6]
+Cebuano ceb 21.8 1 [21.8]
+Chinantec-NT chz 6.5 1 [6.5]
+Chinese cmn 5.8 1 [5.8]
+English eng 13.7 1 [13.7]
+Ewe-NT ewe 18.9 2 [18.1, 19.7]
+Farsi pes 5.2 1 [5.2]
+Finnish fin 17.7 1 [17.7]
+French fra 13.4 2 [11.9, 14.8]
+Galela-NT gbi 38.2 1 [38.2]
+Hebrew heb 0.8 1 [0.8]
+Hindi hin 17.8 1 [17.8]
+Indonesian ind 23.6 3 [19.0, 21.3, 30.6]
+Jakalteko-NT jac 26.6 2 [28.2, 25.1]
+Kabyle-NT kab 7.8 1 [7.8]
+Kannada kan 22.8 1 [22.8]
+Latin lat 15.3 1 [15.3]
+Lukpa-NT dop 17.3 1 [17.3]
+Malayalam mal 2.7 1 [2.7]
+Mam-NT mam 23.0 4 [22.3, 19.1, 21.7, 29.0]
+Marathi mar 21.9 1 [21.9]
+Nahuatl-NT nhe 27.9 1 [27.9]
+Polish pol 9.5 1 [9.5]
+Portuguese por 12.6 4 [13.9, 13.3, 10.0, 13.4]
+Romani-NT rmy 15.5 1 [15.5]
+Romanian ron 6.4 1 [6.4]
+Russian rus 14.6 1 [14.6]
+Somali som 16.4 1 [16.4]
+Spanish spa 12.8 5 [16.6, 15.3, 7.3, 9.5, 15.3]
+Swedish swe 16.3 2 [15.9, 16.8]
+Tachelhit-NT shi 16.2 1 [16.2]
+Tagalog tgl 19.5 1 [19.5]
+Telugu tel 14.8 1 [14.8]
+Thai tha 15.6 1 [15.6]
+Turkish tur 11.2 2 [13.3, 9.0]
+Uma-NT ppk 27.8 1 [27.8]
+Vietnamese vie 9.2 1 [9.2]
+spread %: hours 70.6 chars 32.1 bits 10.8
+pearson log hours vs log chars 0.578  vs log bits 0.515
+spearman 0.713 0.609
+within-language recording spread (median abs log diff %) 24.3 36
+all 699 recordings spread 49.7 median hours 19.9
+--- filtered: recordings with >= 10 h aligned (drops failed alignments)
+31 spread %: hours 26.1 chars 20.0 bits 9.7
+pearson log hours vs log chars 0.837  vs log bits 0.688
+partial hours~bits | chars 0.087  hours~chars | bits 0.66
+slope log hours on log chars 1.09  on log bits 1.85
+rate spreads %: chars per second 14.4  bits per second 20.7
+median bits/s 22.5  median chars/s 10.2
+Galela-NT 12.7 7.7
+Uma-NT 15.3 8.5
+Nahuatl-NT 15.3 9.5
+Jakalteko-NT 16.6 9.5
+Indonesian 16.7 9.6
+Kannada 17.2 8.0
+Cebuano 18.1 9.8
+Tagalog 18.7 10.7
+Mam-NT 20.1 10.2
+Marathi 20.6 8.5
+Hindi 20.8 8.3
+Basque-NT 21.0 10.1
+Cakchiquel-NT 21.7 12.9
+Aukan-NT 21.8 10.4
+Finnish 22.5 10.2
+Latin 22.5 9.4
+Tachelhit-NT 22.7 10.2
+Lukpa-NT 22.8 10.5
+Cabecar-NT 23.1 11.3
+Ewe-NT 23.3 9.4
+Spanish 24.0 10.3
+Somali 24.4 11.6
+Romani-NT 24.5 11.4
+Swedish 25.1 10.6
+Telugu 26.2 11.1
+English 26.2 12.1
+Russian 26.5 9.5
+Thai 27.5 12.9
+Turkish 28.2 12.8
+French 28.5 13.0
+Portuguese 30.0 12.4
