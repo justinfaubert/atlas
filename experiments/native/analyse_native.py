@@ -59,11 +59,12 @@ def main(argv=None):
     p.add_argument("--min-words", type=int, default=40_000, help="texts shorter than this are left out of part 3")
     p.add_argument("--boot", type=int, default=1000)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--text-effect", action="store_true", help="neural: subtract the shuffled-text matrix (removes the model's prior)")
     a = p.parse_args(argv)
     a.out.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(a.seed)
     runs = {k: Path(v) for k, v in (r.split("=", 1) for r in a.run)}
-    T, probes = load(runs, a.instrument, a.min_occ)
+    T, probes = load(runs, a.instrument, a.min_occ, a.text_effect)
     cat = {r["name"]: r for r in csv.DictReader(open(a.catalogue))}
     keys = sorted(k for k in T if k[1] in cat)
     info = {k: cat[k[1]] for k in keys}
@@ -237,14 +238,14 @@ def main(argv=None):
                               "ci": [round(float(np.percentile(bs, 2.5)), 4), round(float(np.percentile(bs, 97.5)), 4)],
                               "positive_share": round(float(np.mean(st > 0)), 2)}
 
-    with open(a.out / f"pairs_{a.instrument}.csv", "w", newline="") as fh:
+    with open(a.out / f"pairs_{a.instrument.replace('/', '_').replace(':', '-')}{'_te' if a.text_effect else ''}.csv", "w", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(["x", "y", "probes", "rsa", "rel", "same_work", "same_lang", "same_origin", "both_native"])
         for q in pairs:
             w.writerow([q["x"][1], q["y"][1], q["n"], round(q["rsa"], 4), round(q["rel"], 3), int(q["same_work"]),
                         int(q["same_lang"]), int(q["same_origin"]), int(q["both_native"])])
     out["reliability"] = {k[1]: round(float(v), 3) for k, v in rel.items()}
-    (a.out / f"native_{a.instrument}.json").write_text(json.dumps(out, indent=1))
+    (a.out / f"native_{a.instrument.replace('/', '_').replace(':', '-')}{'_te' if a.text_effect else ''}.json").write_text(json.dumps(out, indent=1))
     print(json.dumps({k: v for k, v in out.items() if k != "reliability"}, indent=1))
 
 

@@ -93,3 +93,46 @@ padded (vingtmille-en, tourdumonde-en, robur-en, werther, crusoe-fr) and left ou
   translation pairs allow (19 English-French works, 9 German-English, 5 German-French).
 - Old translations are uneven (abridgements, prefaces). The word-ratio filter catches the large cases only.
 - Exploratory; not preregistered.
+
+## 4. Neural check (2026-11-26, GPU run of run_native.sh)
+
+Same 62 novels, 51 common concepts, three trained models (XLM-R base, mBERT cased, LaBSE) and the untrained
+XLM-R as a null. Each was analysed raw and as a text effect (in-order minus shuffled, which removes the model's
+fixed picture of each language). The svd and ppmi matrices from the GPU run give exactly the counting numbers
+above, so the two runs agree. Outputs: runs/native/native_analysis_neural/ in project files.
+
+Pair model, text effect (95% CI, bootstrap over works):
+
+| instrument | same work | same language | same origin | native extra |
+|---|---|---|---|---|
+| svd (counting) | +0.111 | +0.038 | +0.004 (n.s.) | -0.001 (n.s.) |
+| XLM-R | +0.082 | +0.337 | +0.018 | -0.008 (n.s.) |
+| mBERT | +0.097 | +0.289 | +0.017 | -0.003 (n.s.) |
+| LaBSE | +0.118 | +0.239 | +0.022 | -0.002 (n.s.) |
+| untrained XLM-R | -0.002 | +0.002 | +0.001 | +0.005 (all n.s.) |
+
+- The null passes cleanly. Raw, the untrained model shows a huge "language" effect (+0.73) that is pure tokenizer
+  and prior. The text effect takes it to zero. So everything the trained models show in the text effect is learned.
+- Native extra is zero in every instrument. The language fingerprint of native writing and of translation into
+  that language correlate 0.85-0.98 in the neural models (0.49-0.68 counting). This is now the most robust result
+  of the native test: translation reproduces the target language's accent fully.
+- Size of the language layer depends on the instrument. Counting: language is about 1/3 of story. Trained neural
+  models: language is 2-4 times story. Disattenuated, two different books in the same language are more alike
+  (0.68) than one book in two languages (0.39-0.55) for the neural models; counting gives the opposite order (0.54
+  vs 0.88). Counting sees which words keep company. The neural models also see grammar inside the sentence (articles,
+  possessives, case, word order), which is language-wide and mostly independent of the story.
+- A culture-of-origin effect appears in the neural models (+0.02), and shining-through becomes significant
+  (+0.017 to +0.025). But origin is confounded with authors (Verne, Dumas, Goethe, Tolstoy, Dickens). author_check.py
+  adds author features:
+  - Same author, other book, same language: +0.033 counting, +0.07 to +0.11 neural (all CIs above zero; 20 pairs,
+    and some may share a translator).
+  - Same author across languages: +0.018 svd and +0.046 LaBSE above zero; ppmi, XLM-R and mBERT positive but
+    their CIs touch zero.
+  - Origin once authors are taken out: +0.001 counting, +0.013 to +0.015 neural with lower CI bounds at 0.000-0.002.
+    So culture leaves at most a faint trace, about 5% of the language layer.
+
+What this changes:
+- The layer order is not fixed. It depends on what the instrument hears. Word co-occurrence ranks story first;
+  sentence-reading models rank language first. Both agree that the language layer is the same in native and
+  translated text, and that culture adds little or nothing beyond language and author.
+- A new layer: authorial voice. It shows across different books by one author and, faintly, through translation.
