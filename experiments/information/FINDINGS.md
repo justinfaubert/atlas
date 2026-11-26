@@ -176,3 +176,37 @@ audio/wilderness_durations.py (CMU Wilderness durations).
   - Aligned hours depend on alignment coverage. Repeat recordings of the same language differ by a median of 24%.
   - Bits here are of the written text, not the speech.
 - A clean test needs verse-level alignments, which means running the festvox pipeline on bible.is audio.
+
+# The message itself (2026-11-25, late)
+
+## What the bits are made of (info_parts.py, 16 NTs, 7,324 verses)
+
+Character-model bits per verse, split by word class. Names are words capitalised in at least 90% of their
+mid-verse uses; common words are the 100 most frequent word types.
+
+| | names | common words | content words | spaces/punct |
+|---|---|---|---|---|
+| English | 12 | 68 | 101 | 28 |
+| Vietnamese | 8 | 83 | 103 | 24 |
+| Indonesian | 16 | 68 | 115 | 32 |
+| Turkish | 15 | 24 | 151 | 30 |
+| Finnish | 11 | 39 | 151 | 30 |
+| Xhosa | 1 | 26 | 180 | 26 |
+
+- Names cost about 10 bits per verse (5%) almost everywhere. Xhosa is the exception at 1, because its noun-class
+  prefixes hide the capitals. German was left out, since it capitalises every noun.
+- Common words take 30-38% of the bits in languages that build with separate small words (Vietnamese, English,
+  Indonesian, Tagalog). They take 11-17% in languages that build with word endings (Turkish, Xhosa, Finnish,
+  Czech), and there the content words carry correspondingly more.
+- So the grammatical part of the message (tense, number, who) moves between small separate words and word
+  endings. It isn't free: common words cost 1.2-2.3 bits per character, against 1.8-2.9 for content words.
+
+## Shared message between translations
+
+- A word-alignment model (IBM Model 1 plus a bigram language model) trained on one Bible found only 3-7% of a
+  target verse predictable from its source. That is far too loose a lower bound to interpret, so it was dropped.
+- gpu_shared_nllb.py and run_shared.sh score held-out verses with NLLB-200 in three conditions: given the real
+  source verse, given a different verse, and given nothing.
+- Shared message = bits(given another verse) - bits(given the real verse).
+- The decoder alone also gives a neural estimate of each language's bits per verse.
+- This is waiting for a GPU run.
