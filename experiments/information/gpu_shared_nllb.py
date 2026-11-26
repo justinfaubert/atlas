@@ -114,6 +114,8 @@ def main(argv=None):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     a.out.mkdir(parents=True, exist_ok=True)
     langs = [n for n in FULL if (a.bibles / f"{n}.xml").exists()]
+    if "English" not in langs:
+        sys.exit(f"No English.xml in {a.bibles}: point --bibles at the bible-corpus folder")
     bibles = {n: load_bible(a.bibles / f"{n}.xml") for n in langs}
     ref = list(bibles["English"].keys())
     common = [v for v in ref if all(v in bibles[n] for n in langs)]
