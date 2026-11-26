@@ -1,0 +1,279 @@
+<title>The Shape of a Message</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; each idea is a short claim, then a figure the reader can push on. Two semantic hues run
+   through every figure: message (ink blue) and packaging (amber). */
+:root{
+  --bg:#f4f6f9; --panel:#ffffff; --fg:#17202e; --muted:#5a6678; --rule:#dbe1ea; --grid:#e8ecf2;
+  --msg:#2459c7; --msg-soft:#d6e1f7; --pack:#d98a1c; --pack-soft:#f6e5c8; --hi:#0f8a6c;
+  --display:"Spectral",Georgia,serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11161e; --panel:#19202b; --fg:#e7ebf2; --muted:#9ba6b8; --rule:#2a3342; --grid:#232b37;
+  --msg:#6c98f0; --msg-soft:#22314f; --pack:#e8a24a; --pack-soft:#3d2f1b; --hi:#38c39d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11161e; --panel:#19202b; --fg:#e7ebf2; --muted:#9ba6b8; --rule:#2a3342; --grid:#232b37;
+  --msg:#6c98f0; --msg-soft:#22314f; --pack:#e8a24a; --pack-soft:#3d2f1b; --hi:#38c39d; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.65 var(--body)}
+.wrap{max-width:880px;margin:0 auto;padding-block:44px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font:600 clamp(2.1rem,5vw,3.1rem)/1.08 var(--display);margin:0 0 .6rem;text-wrap:balance;letter-spacing:-.01em}
+h2{font:600 clamp(1.45rem,3vw,1.85rem)/1.2 var(--display);margin:3.4rem 0 .6rem;text-wrap:balance}
+.eyebrow{font:500 .74rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:3.6rem 0 -.2rem}
+p{max-width:66ch;margin:.7rem 0}
+.lede{font-size:1.12rem;color:var(--muted);max-width:60ch}
+em.m{font-style:normal;color:var(--msg);font-weight:600}
+em.p{font-style:normal;color:var(--pack);font-weight:600}
+figure{margin:1.2rem 0 0;background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:16px 16px 10px;position:relative}
+figcaption{color:var(--muted);font-size:.86rem;padding:8px 2px 2px}
+.chart{width:100%;overflow-x:auto}
+svg{display:block;width:100%;height:auto}
+svg text{fill:var(--muted);font:12px var(--body)}
+svg .lab{fill:var(--fg);font-weight:500}
+.verses{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:1.4rem}
+.verse{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;min-width:0}
+.verse .t{font-size:1.02rem;line-height:1.45;min-height:2.9em;overflow-wrap:anywhere}
+.verse .meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font:12px var(--mono);color:var(--muted)}
+.verse .bar{height:6px;border-radius:3px;background:var(--pack);margin-top:6px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.seg button{font:500 .88rem var(--body);background:transparent;color:var(--fg);border:0;padding:7px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--msg);outline-offset:2px}
+.readout{font:500 .9rem var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.readout b{color:var(--fg);font-weight:500}
+input[type=range]{width:min(320px,100%);accent-color:var(--msg)}
+select{font:500 .92rem var(--body);background:var(--panel);color:var(--fg);border:1px solid var(--rule);border-radius:8px;padding:6px 10px}
+.idioms{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-top:1rem}
+.idiom{border:1px solid var(--rule);border-radius:10px;padding:12px 14px;background:var(--panel);min-width:0}
+.idiom .a{font:500 1.02rem var(--display)}
+.idiom .b{font:italic 500 1.02rem var(--display);color:var(--pack)}
+.idiom .c{font-size:.85rem;color:var(--muted);margin-top:4px}
+.builds{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:12px;margin-top:1rem}
+.build{padding:14px 16px;border-top:3px solid var(--msg);background:var(--panel);border-radius:0 0 10px 10px;min-width:0}
+.build h3{font:600 1.05rem var(--display);margin:0 0 .3rem}
+.build p{font-size:.92rem;margin:0;color:var(--muted)}
+.big{font:600 clamp(1.3rem,3vw,1.6rem)/1.35 var(--display);max-width:40ch;margin:1.4rem 0;padding-left:16px;border-left:3px solid var(--msg)}
+.note{font-size:.86rem;color:var(--muted)}
+.tip{position:absolute;pointer-events:none;background:var(--fg);color:var(--bg);font:12px/1.4 var(--body);padding:5px 8px;border-radius:5px;white-space:nowrap;z-index:5}
+.dot{transition:transform .9s cubic-bezier(.3,.7,.2,1)}
+@media (prefers-reduced-motion:reduce){.dot{transition:none}}
+</style>
+<div class="wrap">
+<h1>Every language says it differently. They all say the same amount.</h1>
+<p class="lede">We measured the same book, the Bible, in 56 languages, plus 62 novels in English, French and German. This page walks through what we found about what a message is, once you strip away the words that carry it.</p>
+
+<div class="verses" id="verses"></div>
+<p class="note">Genesis 1:1 in twelve of the translations we used. It's one sentence. The amber bars show how many characters each language needs for it, from 7 in Chinese to 51 in Thai.</p>
+
+<div class="eyebrow">Idea 1</div>
+<h2>Length lies. Information doesn't.</h2>
+<p>Count characters and languages look wildly different: Chinese needs less than a third of the characters English uses for the whole Bible. Now measure something else. Compress each Bible as tightly as a computer can, and count the <em class="m">bits</em> that are left. That is the information that couldn't be squeezed out.</p>
+<figure>
+  <div class="controls"><div class="seg" role="group" aria-label="Measure"><button id="m-chars" aria-pressed="true">Measure by characters</button><button id="m-bits" aria-pressed="false">Measure by information</button></div>
+  <span class="readout" id="strip-read"></span></div>
+  <div class="chart" id="strip"></div>
+  <figcaption>Each dot is one of 56 Bibles, placed by how far it sits from the typical language. Press the buttons and watch the dots move. Hover a dot for its name.</figcaption>
+</figure>
+<p>Length varies about fourfold. Information varies by about 7%. Thousands of translators, working independently over four centuries, landed on nearly the same information budget for each verse. The leftover 7% isn't random either: scripts that leave out vowels (Hebrew, Arabic) come in low, because readers supply the vowels themselves.</p>
+
+<div class="eyebrow">Idea 2</div>
+<h2>Strangers up close, neighbours from a distance</h2>
+<p>Why do languages look so different and carry the same amount? Let the compressor remember a few letters of context and watch. With no memory, each language's letters look like their own alien code. Give it five characters of memory, and the languages converge.</p>
+<figure>
+  <div class="controls"><label for="ctx" class="readout">Letters of memory: <b id="ctx-n">0</b></label><input type="range" id="ctx" min="0" max="6" step="1" value="0"><span class="readout" id="ctx-read"></span></div>
+  <div class="chart" id="cool"></div>
+  <figcaption>Each dot is a language, placed by its bits per verse relative to the typical language at that memory length. The band shows the spread.</figcaption>
+</figure>
+<p>Physicists would recognise the shape. Up close, every gas looks like chaos; from far enough away, they obey the same laws. Languages differ in their local details and agree on the large-scale budget.</p>
+
+<div class="eyebrow">Idea 3</div>
+<h2>The seesaw: order or endings</h2>
+<p>A language has to say who did what to whom somewhere. Finnish and Latin put it in word endings, so you can shuffle their words and lose little. Thai and Japanese put it in word order, so shuffling destroys a lot. When one side goes up, the other comes down, and the total stays put. This trade-off was published in 2017 across about 1,000 languages, and our data reproduced it.</p>
+<figure>
+  <div class="chart" id="order"></div>
+  <figcaption>Across: how varied a language's word forms are (bits per word). Up: bits per verse lost when the words of each verse are shuffled. Spearman &minus;0.81.</figcaption>
+</figure>
+
+<div class="eyebrow">Idea 4</div>
+<h2>What actually crosses between languages</h2>
+<p>A translation model read each verse three ways: alone, next to a random verse, and next to the real verse in English. The bits that the real English verse saves are the <em class="m">message</em> the two texts share. What's left is <em class="p">packaging</em>: everything the target language adds that English doesn't predict.</p>
+<figure>
+  <div class="controls"><label for="pick" class="readout">Compare English with</label><select id="pick"></select></div>
+  <div class="chart" id="cross"></div>
+  <figcaption>Bits per verse. The top bar is a second English Bible (WEB) next to the King James. The bottom bar is the language you picked.</figcaption>
+</figure>
+<p>The message is about the same size every time: around 118 bits per verse, and about 130 between two English versions. Languages differ in their packaging, not in how much of the message comes across. Related languages don't share more, either. Finnish and Hungarian are cousins, and they barely beat Finnish and Arabic.</p>
+<p class="big">A message behaves like a protein. Many different codon spellings make the same protein, and many different languages carry the same message.</p>
+
+<div class="eyebrow">Idea 5</div>
+<h2>Poetry is where the packaging is the message</h2>
+<p>Lists of names and plain prose cross between languages most easily. Psalms cross least. In a poem, rhythm and sound are part of what's being said, so they can't be carried over.</p>
+<figure>
+  <div class="chart" id="chap"></div>
+  <figcaption>Share of each verse's bits predicted by its translation, by chapter (every tenth chapter of the Bible), averaged over 51 languages. Orange: Psalms, Job, Song of Songs, Lamentations and the psalm in Jonah 2.</figcaption>
+</figure>
+<p>The same chapters are hard in every language. They're also the ones where our meaning-maps disagree most. Three unrelated measurements point at the same passages, so the difficulty is in the thought, not in any particular language.</p>
+
+<div class="eyebrow">Idea 6</div>
+<h2>Every language has an accent</h2>
+<p>Everything so far came from translations. So we gathered 62 novels, French, German and English originals next to their translations, and asked whether a language leaves its own mark. It does, a small one. It's about a third the size of the story's own mark, and it's identical whether a book was written in that language or translated into it. The book's culture of origin leaves almost no trace.</p>
+<figure>
+  <div class="chart" id="native"></div>
+  <figcaption>How much more alike two books' maps of meaning are when they share each property, with 95% intervals. Counting instruments, 1,891 pairs of books.</figcaption>
+</figure>
+<p>The accent lives in idiom: the habitual phrasings each language reaches for.</p>
+<div class="idioms">
+  <div class="idiom"><div class="a">the first time</div><div class="b">la première fois</div><div class="c">English ties "time" to first and second. French uses a different word, so its "temps" never meets them.</div></div>
+  <div class="idiom"><div class="a">aloud</div><div class="b">à haute voix</div><div class="c">French pairs "high" with "voice". English almost never does.</div></div>
+  <div class="idiom"><div class="a">ask a question</div><div class="b">poser une question</div><div class="c">In English, asking and questions travel together. In French a question is "put".</div></div>
+</div>
+
+<div class="eyebrow">Putting it together</div>
+<h2>The layers of a message</h2>
+<p>Stack everything, and a picture with layers comes out. Packaging changes a great deal and carries little. The message changes very little and carries most of what matters.</p>
+<figure>
+  <div class="chart" id="layers"></div>
+  <figcaption>From the outside in, with the size of each effect in our data.</figcaption>
+</figure>
+
+<div class="eyebrow">What next</div>
+<h2>Things we could build with this</h2>
+<div class="builds">
+  <div class="build"><h3>A message distiller</h3><p>Line up many renderings of one passage and keep only what all of them agree on. About 360 KB would hold the shared message of the whole Bible, a tenth of any single translation.</p></div>
+  <div class="build"><h3>A message meter</h3><p>Score any translation, summary or AI answer by how much of the source's message came across and where it was lost.</p></div>
+  <div class="build"><h3>An "is this a language?" test</h3><p>Check an unknown signal (whale codas, an undeciphered script) for a steady information rate and the order-or-endings seesaw.</p></div>
+  <div class="build"><h3>A map of where meaning resists</h3><p>Predict which passages will lose the most in translation, for translators, learners and poets.</p></div>
+</div>
+
+<h2>How we measured, and what to keep in mind</h2>
+<p class="note">Bits come from compressing written text (a character model that looks back six letters, checked with stronger compressors). The shared message comes from a 600M-parameter translation model scoring 2,346 held-out verses in 53 languages. Maps of meaning compare how 123 aligned concepts (man, day, hand, say, believe...) relate to each other inside each text. Keep in mind: this is writing, not speech, so spelling systems move the numbers; most cross-language texts are translations of one book; and the analyses were exploratory, not preregistered. A neural check of the novels is still running.</p>
+</div>
+<div class="tip" id="tip" hidden></div>
+<script>const D={"verses": [["English", "In the beginning God created the heaven and the earth.", 45], ["Chinese", "起初神創造天地", 7], ["Finnish", "Alussa loi Jumala taivaan ja maan.", 29], ["Hebrew", "בראשית ברא אלהים את השמים ואת הארץ׃", 29], ["Thai", "ในเริ่มแรกนั้นพระเจ้าทรงเนรมิตสร้างฟ้าและแผ่นดินโลก", 51], ["Xhosa", "Ekuqalekeni uThixo wadala amazulu nehlabathi.", 41], ["Japanese", "はじめに神は天と地とを創造された。", 17], ["Russian", "В начале сотворил Бог небо и землю.", 29], ["Hindi", "आदि में परमेश्वर ने आकाश और पृथ्वी की सृष्टि की।", 39], ["Tagalog", "Nang pasimula ay nilikha ng Dios ang langit at ang lupa.", 46], ["Amharic", "በመጀመሪያ እግዚአብሔር ሰማይንና ምድርን ፈጠረ።", 26], ["Korean", "태초에 하나님이 천지를 창조하시니라", 16]], "strip": [["Afrikaans", 3.2, -1.4], ["Albanian", 1.5, 4.2], ["Amharic", -58.7, -0.4], ["Arabic", -51.2, -9.6], ["Bulgarian", -7.7, 2.4], ["Burmese", 17.7, -3.1], ["Cebuano", 26.9, 3.4], ["Chinese", -113.8, -8.0], ["Croatian", -16.7, 7.8], ["Czech", -9.8, 4.8], ["Danish", -9.8, -0.1], ["Dutch", 11.1, 10.8], ["English-WEB", 1.4, -5.4], ["English", 4.2, -6.0], ["Esperanto", -1.2, -7.4], ["Farsi", -19.9, 6.6], ["Finnish", 8.3, 4.2], ["French", 5.8, -0.6], ["German", 4.3, 0.5], ["Greek", 7.6, 0.1], ["Hebrew", -65.8, -19.9], ["Hindi", -9.1, 1.0], ["Hungarian", 0.0, 9.3], ["Icelandic", -3.1, 7.9], ["Indonesian", 20.7, -1.6], ["Italian", -2.5, 0.3], ["Japanese", -59.9, -1.9], ["Kannada", 7.6, 1.0], ["Korean", -88.2, -7.4], ["Latin", -11.4, -10.1], ["Lithuanian", -16.3, -7.9], ["Malagasy", 22.5, -0.9], ["Malayalam", 15.9, -7.6], ["Maori", 7.3, -6.2], ["Marathi", 11.8, 19.1], ["Nepali", 17.2, 21.0], ["Norwegian", -6.3, -0.4], ["Paite", 1.4, 6.2], ["Polish", -2.5, 4.2], ["Portuguese", -2.4, -0.4], ["Romanian", 1.4, 0.9], ["Russian", -13.5, 4.8], ["Serbian", -20.7, -3.0], ["Shona", 5.2, -8.4], ["Slovak", -7.6, 6.0], ["Slovene", -6.3, 9.4], ["Somali", 22.3, 9.2], ["Spanish", -0.0, -0.8], ["Swedish", 3.8, 5.9], ["Tagalog", 23.3, -3.1], ["Telugu", 2.2, 2.0], ["Thai", 16.4, 8.8], ["Turkish", -4.4, -7.0], ["Vietnamese", -5.4, -0.9], ["Xhosa", 4.4, 0.9], ["Zarma", -2.8, -4.9]], "cool": [{"median": 552, "v": [["Afrikaans", 1.6], ["Albanian", 2.7], ["Amharic", -26.1], ["Arabic", -49.7], ["Bulgarian", -6.7], ["Burmese", 20.4], ["Cebuano", 15.9], ["Chinese", -43.1], ["Croatian", -15.3], ["Czech", -2.0], ["Danish", -10.0], ["Dutch", 8.6], ["English-WEB", 1.0], ["English", 2.5], ["Esperanto", -3.7], ["Farsi", -16.7], ["Finnish", 0.3], ["French", 5.8], ["German", 1.5], ["Greek", 3.7], ["Hebrew", -65.8], ["Hindi", 5.8], ["Hungarian", 3.2], ["Icelandic", 1.9], ["Indonesian", 11.5], ["Italian", -6.3], ["Japanese", -29.3], ["Kannada", 12.8], ["Korean", -38.1], ["Latin", -21.1], ["Lithuanian", -16.0], ["Malagasy", 12.0], ["Malayalam", 18.0], ["Maori", -5.7], ["Marathi", 20.4], ["Nepali", 27.7], ["Norwegian", -6.2], ["Paite", -6.5], ["Polish", 1.8], ["Portuguese", -3.8], ["Romanian", 1.8], ["Russian", -9.6], ["Serbian", -20.4], ["Shona", -3.2], ["Slovak", -1.8], ["Slovene", -6.5], ["Somali", 13.0], ["Spanish", -0.3], ["Swedish", 5.8], ["Tagalog", 10.7], ["Telugu", 5.5], ["Thai", 20.1], ["Turkish", -4.7], ["Vietnamese", 13.9], ["Xhosa", -3.1], ["Zarma", -4.2]], "spread": 17.6}, {"median": 420, "v": [["Afrikaans", 2.8], ["Albanian", 3.7], ["Amharic", -31.4], ["Arabic", -36.8], ["Bulgarian", -3.2], ["Burmese", 4.9], ["Cebuano", 16.0], ["Chinese", -36.9], ["Croatian", -12.4], ["Czech", -0.6], ["Danish", -6.5], ["Dutch", 10.6], ["English-WEB", 4.1], ["English", 4.2], ["Esperanto", -3.6], ["Farsi", -7.1], ["Finnish", 5.4], ["French", 7.3], ["German", 1.8], ["Greek", 3.2], ["Hebrew", -54.9], ["Hindi", -1.0], ["Hungarian", 7.3], ["Icelandic", 2.6], ["Indonesian", 11.9], ["Italian", -2.5], ["Japanese", -42.9], ["Kannada", 9.1], ["Korean", -52.5], ["Latin", -11.4], ["Lithuanian", -12.2], ["Malagasy", 3.5], ["Malayalam", 9.3], ["Maori", -9.2], ["Marathi", 16.1], ["Nepali", 21.7], ["Norwegian", -3.7], ["Paite", -3.2], ["Polish", 0.8], ["Portuguese", -2.6], ["Romanian", 5.4], ["Russian", -5.7], ["Serbian", -18.3], ["Shona", -9.3], ["Slovak", 0.6], ["Slovene", -2.6], ["Somali", 16.4], ["Spanish", 1.9], ["Swedish", 7.6], ["Tagalog", 9.4], ["Telugu", 4.6], ["Thai", 18.9], ["Turkish", -3.1], ["Vietnamese", -7.6], ["Xhosa", -8.3], ["Zarma", -9.0]], "spread": 16.2}, {"median": 336, "v": [["Afrikaans", -1.1], ["Albanian", 5.8], ["Amharic", -38.9], ["Arabic", -32.3], ["Bulgarian", -0.1], ["Burmese", -0.1], ["Cebuano", 17.6], ["Chinese", -49.8], ["Croatian", -5.1], ["Czech", 0.8], ["Danish", -8.0], ["Dutch", 11.2], ["English-WEB", 0.2], ["English", 0.8], ["Esperanto", -4.8], ["Farsi", -6.4], ["Finnish", 8.3], ["French", 5.6], ["German", -0.1], ["Greek", 5.7], ["Hebrew", -48.8], ["Hindi", -6.2], ["Hungarian", 6.1], ["Icelandic", 0.4], ["Indonesian", 16.6], ["Italian", 2.1], ["Japanese", -45.5], ["Kannada", -0.2], ["Korean", -50.3], ["Latin", -9.0], ["Lithuanian", -11.0], ["Malagasy", 9.3], ["Malayalam", -5.4], ["Maori", -0.5], ["Marathi", 10.9], ["Nepali", 13.6], ["Norwegian", -4.7], ["Paite", -1.0], ["Polish", 1.9], ["Portuguese", 1.2], ["Romanian", 7.0], ["Russian", -2.1], ["Serbian", -11.6], ["Shona", -1.8], ["Slovak", 1.9], ["Slovene", 2.6], ["Somali", 19.6], ["Spanish", 3.4], ["Swedish", 4.3], ["Tagalog", 12.4], ["Telugu", 0.1], ["Thai", 5.0], ["Turkish", -4.5], ["Vietnamese", -11.2], ["Xhosa", 1.2], ["Zarma", -5.4]], "spread": 16.0}, {"median": 273, "v": [["Afrikaans", -0.4], ["Albanian", 6.2], ["Amharic", -25.9], ["Arabic", -27.4], ["Bulgarian", 0.1], ["Burmese", -1.1], ["Cebuano", 16.8], ["Chinese", -26.7], ["Croatian", -0.1], ["Czech", -1.4], ["Danish", -3.9], ["Dutch", 12.7], ["English-WEB", -2.5], ["English", -1.8], ["Esperanto", -6.2], ["Farsi", -4.5], ["Finnish", 7.0], ["French", 4.7], ["German", 1.3], ["Greek", 5.6], ["Hebrew", -40.0], ["Hindi", -5.5], ["Hungarian", 3.9], ["Icelandic", 3.0], ["Indonesian", 12.8], ["Italian", 4.1], ["Japanese", -28.4], ["Kannada", -3.7], ["Korean", -34.5], ["Latin", -8.7], ["Lithuanian", -11.3], ["Malagasy", 11.2], ["Malayalam", -5.5], ["Maori", 3.7], ["Marathi", 11.4], ["Nepali", 11.4], ["Norwegian", -1.5], ["Paite", 3.4], ["Polish", 2.6], ["Portuguese", 2.1], ["Romanian", 4.6], ["Russian", -1.0], ["Serbian", -7.9], ["Shona", 0.4], ["Slovak", 1.1], ["Slovene", 4.8], ["Somali", 19.6], ["Spanish", 3.4], ["Swedish", 5.3], ["Tagalog", 12.1], ["Telugu", -2.4], ["Thai", -0.2], ["Turkish", -6.6], ["Vietnamese", -4.5], ["Xhosa", 6.3], ["Zarma", -3.0]], "spread": 12.0}, {"median": 242, "v": [["Afrikaans", -0.7], ["Albanian", 4.0], ["Amharic", -13.1], ["Arabic", -20.2], ["Bulgarian", -0.2], ["Burmese", -2.2], ["Cebuano", 10.5], ["Chinese", -20.7], ["Croatian", 1.9], ["Czech", -1.0], ["Danish", -2.0], ["Dutch", 12.3], ["English-WEB", -4.7], ["English", -4.6], ["Esperanto", -8.1], ["Farsi", -0.6], ["Finnish", 4.7], ["French", 2.1], ["German", 1.3], ["Greek", 2.7], ["Hebrew", -31.3], ["Hindi", -3.8], ["Hungarian", 4.0], ["Icelandic", 5.2], ["Indonesian", 5.3], ["Italian", 1.8], ["Japanese", -13.6], ["Kannada", -3.4], ["Korean", -20.5], ["Latin", -11.1], ["Lithuanian", -12.1], ["Malagasy", 7.2], ["Malayalam", -6.5], ["Maori", 1.4], ["Marathi", 13.4], ["Nepali", 13.5], ["Norwegian", -0.6], ["Paite", 4.9], ["Polish", 1.9], ["Portuguese", 0.2], ["Romanian", 1.6], ["Russian", -0.5], ["Serbian", -7.2], ["Shona", -3.5], ["Slovak", 1.2], ["Slovene", 5.2], ["Somali", 14.8], ["Spanish", 0.8], ["Swedish", 5.4], ["Tagalog", 5.7], ["Telugu", -2.6], ["Thai", 1.7], ["Turkish", -7.6], ["Vietnamese", -1.6], ["Xhosa", 4.4], ["Zarma", -2.8]], "spread": 8.8}, {"median": 231, "v": [["Afrikaans", -1.3], ["Albanian", 3.3], ["Amharic", -5.0], ["Arabic", -14.1], ["Bulgarian", 0.5], ["Burmese", -3.4], ["Cebuano", 5.9], ["Chinese", -10.5], ["Croatian", 4.4], ["Czech", 1.6], ["Danish", -1.2], ["Dutch", 11.2], ["English-WEB", -5.5], ["English", -5.9], ["Esperanto", -8.2], ["Farsi", 3.0], ["Finnish", 3.5], ["French", 0.2], ["German", 0.8], ["Greek", 0.8], ["Hebrew", -24.7], ["Hindi", -1.5], ["Hungarian", 6.2], ["Icelandic", 6.6], ["Indonesian", 0.9], ["Italian", -0.2], ["Japanese", -5.5], ["Kannada", -1.9], ["Korean", -11.7], ["Latin", -11.7], ["Lithuanian", -10.5], ["Malagasy", 2.1], ["Malayalam", -7.7], ["Maori", -2.8], ["Marathi", 16.2], ["Nepali", 17.4], ["Norwegian", -0.7], ["Paite", 5.2], ["Polish", 2.3], ["Portuguese", -1.0], ["Romanian", 0.4], ["Russian", 1.8], ["Serbian", -5.5], ["Shona", -7.2], ["Slovak", 3.2], ["Slovene", 7.0], ["Somali", 10.5], ["Spanish", -1.0], ["Swedish", 5.6], ["Tagalog", 0.5], ["Telugu", -1.0], ["Thai", 5.3], ["Turkish", -8.2], ["Vietnamese", -2.1], ["Xhosa", 1.4], ["Zarma", -3.8]], "spread": 7.2}, {"median": 230, "v": [["Afrikaans", -1.4], ["Albanian", 4.2], ["Amharic", -0.4], ["Arabic", -9.6], ["Bulgarian", 2.4], ["Burmese", -3.1], ["Cebuano", 3.4], ["Chinese", -8.0], ["Croatian", 7.8], ["Czech", 4.8], ["Danish", -0.1], ["Dutch", 10.8], ["English-WEB", -5.4], ["English", -6.0], ["Esperanto", -7.4], ["Farsi", 6.6], ["Finnish", 4.2], ["French", -0.6], ["German", 0.5], ["Greek", 0.1], ["Hebrew", -19.9], ["Hindi", 1.0], ["Hungarian", 9.3], ["Icelandic", 7.9], ["Indonesian", -1.6], ["Italian", 0.3], ["Japanese", -1.9], ["Kannada", 1.0], ["Korean", -7.4], ["Latin", -10.1], ["Lithuanian", -7.9], ["Malagasy", -0.9], ["Malayalam", -7.6], ["Maori", -6.2], ["Marathi", 19.1], ["Nepali", 21.0], ["Norwegian", -0.4], ["Paite", 6.2], ["Polish", 4.2], ["Portuguese", -0.5], ["Romanian", 0.8], ["Russian", 4.8], ["Serbian", -3.0], ["Shona", -8.4], ["Slovak", 5.9], ["Slovene", 9.4], ["Somali", 9.2], ["Spanish", -0.8], ["Swedish", 5.9], ["Tagalog", -3.1], ["Telugu", 2.0], ["Thai", 8.8], ["Turkish", -7.1], ["Vietnamese", -0.9], ["Xhosa", 0.9], ["Zarma", -4.9]], "spread": 7.2}], "order": [["Afrikaans", 8.51, 43.2], ["Albanian", 9.54, 53.9], ["Amharic", 12.85, 33.2], ["Arabic", 12.14, 31.2], ["Bulgarian", 10.1, 39.8], ["Burmese", 5.56, 79.8], ["Cebuano", 8.5, 55.2], ["Chinese", 10.45, 60.1], ["Croatian", 11.08, 27.5], ["Czech", 10.99, 40.3], ["Danish", 9.69, 35.0], ["Dutch", 9.45, 38.4], ["English-WEB", 8.76, 50.9], ["English", 8.64, 51.9], ["Esperanto", 9.25, 40.2], ["Farsi", 9.82, 54.0], ["Finnish", 11.33, 21.0], ["French", 9.34, 61.6], ["German", 9.56, 36.1], ["Greek", 9.86, 48.2], ["Hebrew", 11.95, 25.5], ["Hindi", 6.25, 103.9], ["Hungarian", 10.75, 33.6], ["Icelandic", 10.13, 37.6], ["Indonesian", 9.73, 36.7], ["Italian", 10.04, 45.6], ["Japanese", 7.91, 165.7], ["Kannada", 6.56, 142.8], ["Korean", 12.65, 52.3], ["Latin", 10.94, 22.1], ["Lithuanian", 11.45, 23.6], ["Malagasy", 9.03, 53.9], ["Malayalam", 6.07, 154.3], ["Maori", 7.52, 56.2], ["Marathi", 6.17, 133.0], ["Nepali", 6.46, 149.1], ["Norwegian", 9.28, 42.6], ["Paite", 9.32, 41.8], ["Polish", 10.88, 35.1], ["Portuguese", 9.58, 44.5], ["Romanian", 9.71, 53.7], ["Russian", 10.89, 33.0], ["Serbian", 10.48, 33.4], ["Shona", 12.38, 30.3], ["Slovak", 10.77, 42.7], ["Slovene", 10.56, 35.0], ["Somali", 10.43, 48.2], ["Spanish", 9.43, 47.7], ["Swedish", 9.66, 43.9], ["Tagalog", 8.45, 56.6], ["Telugu", 6.14, 117.1], ["Thai", 7.7, 190.2], ["Turkish", 12.39, 35.8], ["Vietnamese", 9.07, 98.3], ["Xhosa", 13.03, 27.1], ["Zarma", 8.36, 51.4]], "bars": [["English-WEB", 130.3, 42.3], ["Esperanto", 141.5, 62.2], ["Shona", 132.2, 63.8], ["Portuguese", 135.5, 68.6], ["Afrikaans", 131.7, 69.5], ["Spanish", 132.4, 73.5], ["Xhosa", 133.4, 75.3], ["Maori", 134.2, 80.7], ["Somali", 142.8, 92.0], ["Cebuano", 143.9, 93.1], ["Russian", 129.3, 84.5], ["French", 127.4, 87.0], ["Malagasy", 124.7, 86.6], ["Tagalog", 143.1, 102.7], ["Amharic", 116.2, 85.1], ["Italian", 125.3, 92.6], ["German", 126.9, 94.4], ["Norwegian", 134.5, 100.5], ["Slovak", 140.3, 108.7], ["Arabic", 123.8, 99.6], ["Albanian", 132.4, 107.2], ["Hindi", 113.7, 92.4], ["Finnish", 132.3, 108.2], ["Danish", 130.8, 108.5], ["Kannada", 118.3, 101.5], ["Slovene", 137.4, 119.7], ["Turkish", 112.9, 98.8], ["Lithuanian", 120.4, 105.8], ["Serbian", 127.7, 113.3], ["Icelandic", 134.5, 125.0], ["Bulgarian", 117.9, 110.4], ["Swedish", 129.6, 121.7], ["Romanian", 130.1, 123.2], ["Croatian", 120.7, 119.2], ["Vietnamese", 121.0, 126.7], ["Czech", 129.8, 137.1], ["Burmese", 104.7, 111.9], ["Telugu", 107.4, 120.5], ["Polish", 120.9, 137.2], ["Farsi", 117.5, 134.9], ["Chinese", 110.7, 131.6], ["Korean", 98.8, 119.2], ["Hungarian", 125.1, 156.8], ["Greek", 139.2, 178.6], ["Thai", 128.4, 166.5], ["Japanese", 112.6, 149.1], ["Indonesian", 87.3, 115.9], ["Malayalam", 106.3, 158.7], ["Hebrew", 88.3, 134.2], ["Marathi", 91.5, 150.7], ["Nepali", 87.8, 155.5], ["Dutch", 77.3, 146.5]], "chap": [["GEN.1", 0.6003], ["GEN.11", 0.6263], ["GEN.21", 0.5727], ["GEN.31", 0.5447], ["GEN.41", 0.5203], ["EXO.1", 0.5316], ["EXO.11", 0.5609], ["EXO.21", 0.4965], ["EXO.31", 0.5486], ["LEV.1", 0.5206], ["LEV.11", 0.6006], ["LEV.21", 0.4956], ["NUM.4", 0.4889], ["NUM.14", 0.5599], ["NUM.24", 0.5076], ["NUM.34", 0.5603], ["DEU.8", 0.5581], ["DEU.18", 0.5205], ["DEU.28", 0.5621], ["JOS.4", 0.5847], ["JOS.14", 0.5816], ["JOS.24", 0.6096], ["JDG.10", 0.6204], ["JDG.20", 0.5205], ["1SA.5", 0.5532], ["1SA.15", 0.5651], ["1SA.25", 0.5103], ["2SA.4", 0.5804], ["2SA.14", 0.5316], ["2SA.24", 0.5613], ["1KI.10", 0.5331], ["1KI.20", 0.514], ["2KI.8", 0.5774], ["2KI.18", 0.5788], ["1CH.3", 0.6607], ["1CH.13", 0.5672], ["1CH.23", 0.5857], ["2CH.4", 0.4984], ["2CH.14", 0.5173], ["2CH.24", 0.5537], ["2CH.34", 0.5736], ["EZR.8", 0.5808], ["NEH.8", 0.5503], ["EST.5", 0.5576], ["JOB.5", 0.4776], ["JOB.15", 0.4547], ["JOB.25", 0.5234], ["JOB.35", 0.4518], ["PSA.3", 0.4176], ["PSA.13", 0.4066], ["PSA.23", 0.5343], ["PSA.33", 0.53], ["PSA.43", 0.5215], ["PSA.53", 0.4004], ["PSA.63", 0.4134], ["PSA.73", 0.4084], ["PSA.83", 0.4033], ["PSA.93", 0.4536], ["PSA.103", 0.5488], ["PSA.113", 0.542], ["PSA.123", 0.4693], ["PSA.133", 0.4581], ["PSA.143", 0.5193], ["PRO.3", 0.5377], ["PRO.13", 0.5064], ["PRO.23", 0.5054], ["ECC.2", 0.4749], ["ECC.12", 0.435], ["ISA.2", 0.5325], ["ISA.12", 0.5153], ["ISA.22", 0.4965], ["ISA.32", 0.4128], ["ISA.42", 0.5028], ["ISA.52", 0.5072], ["ISA.62", 0.5335], ["JER.6", 0.473], ["JER.16", 0.5307], ["JER.26", 0.5816], ["JER.36", 0.5934], ["JER.46", 0.4914], ["LAM.4", 0.4664], ["EZE.9", 0.4878], ["EZE.19", 0.4491], ["EZE.29", 0.5477], ["EZE.39", 0.5348], ["DAN.1", 0.5321], ["DAN.11", 0.4556], ["HOS.9", 0.4631], ["AMO.2", 0.5179], ["JON.2", 0.3995], ["NAH.1", 0.4692], ["HAG.2", 0.5418], ["ZEC.10", 0.4956], ["MAT.3", 0.5887], ["MAT.13", 0.5876], ["MAT.23", 0.5784], ["MAR.5", 0.5451], ["MAR.15", 0.5516], ["LUK.9", 0.5626], ["LUK.19", 0.5675], ["JOH.5", 0.5993], ["JOH.15", 0.6504], ["ACT.4", 0.55], ["ACT.14", 0.5569], ["ACT.24", 0.4941], ["ROM.6", 0.5787], ["ROM.16", 0.632], ["1CO.10", 0.5589], ["2CO.4", 0.5439], ["GAL.1", 0.5815], ["EPH.5", 0.559], ["1TH.1", 0.5661], ["1TI.3", 0.4875], ["TIT.3", 0.5084], ["HEB.9", 0.5151], ["1PE.1", 0.5049], ["1JO.3", 0.6136], ["REV.5", 0.599], ["REV.15", 0.6177]], "native": [["Same story", 0.111, 0.096, 0.128], ["Same language", 0.038, 0.03, 0.048], ["Same culture of origin", 0.004, -0.004, 0.012], ["Both written natively (extra)", -0.001, -0.013, 0.012]]};
+const NS="http://www.w3.org/2000/svg";
+function el(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+function txt(p,x,y,s,a={}){const t=el("text",Object.assign({x,y},a),p);t.textContent=s;return t}
+function sc(d0,d1,r0,r1){return v=>r0+(v-d0)/(d1-d0)*(r1-r0)}
+function box(id,w,h){const s=el("svg",{viewBox:`0 0 ${w} ${h}`,role:"img"});document.getElementById(id).appendChild(s);return s}
+const tip=document.getElementById("tip");
+function hover(n,label){
+  n.addEventListener("mouseenter",()=>{tip.textContent=typeof label==="function"?label():label;tip.hidden=false});
+  n.addEventListener("mousemove",e=>{const f=n.closest("figure");if(!f)return;const r=f.getBoundingClientRect();tip.style.left=Math.min(e.clientX-r.left+12,r.width-160)+"px";tip.style.top=(e.clientY-r.top-30)+"px";f.appendChild(tip)});
+  n.addEventListener("mouseleave",()=>{tip.hidden=true});
+}
+const nice=n=>n==="English-WEB"?"English (WEB)":n;
+
+// hero verses
+(function(){
+  const host=document.getElementById("verses"),mx=Math.max(...D.verses.map(v=>v[2]));
+  D.verses.forEach(([l,t,c])=>{const d=document.createElement("div");d.className="verse";
+    d.innerHTML=`<div class="t"></div><div class="bar" style="width:${(100*c/mx).toFixed(1)}%"></div><div class="meta"><span>${l}</span><span>${c} characters</span></div>`;
+    d.querySelector(".t").textContent=t;host.appendChild(d)});
+})();
+
+// 1. strip: characters vs bits
+(function(){
+  const W=820,H=170,L=20,R=20,s=box("strip",W,H),x=sc(-120,40,L,W-R),y0=78;
+  for(let v=-120;v<=40;v+=20){el("line",{x1:x(v),x2:x(v),y1:30,y2:H-40,stroke:"var(--grid)"},s);txt(s,x(v),H-22,(v>0?"+":"")+v+"%",{"text-anchor":"middle"})}
+  el("line",{x1:x(0),x2:x(0),y1:24,y2:H-40,stroke:"var(--muted)","stroke-dasharray":"3 3"},s);
+  txt(s,x(0),18,"typical language",{"text-anchor":"middle"});
+  txt(s,W/2,H-4,"difference from the typical language (log scale)",{"text-anchor":"middle"});
+  const g=el("g",{},s),dots=[];
+  D.strip.forEach(([n,c,b],i)=>{const jit=((i*37)%11-5)*5;
+    const d=el("circle",{class:"dot",cx:0,cy:0,r:6,fill:"var(--pack)","fill-opacity":.8,stroke:"var(--panel)","stroke-width":1},g);
+    d.dataset.c=c;d.dataset.b=b;d.dataset.j=jit;hover(d,()=>`${nice(n)}: ${mode==="c"?"characters":"bits"} ${(mode==="c"?c:b)>0?"+":""}${(mode==="c"?c:b).toFixed(0)}%`);dots.push(d)});
+  let mode="c";const bc=document.getElementById("m-chars"),bb=document.getElementById("m-bits"),rd=document.getElementById("strip-read");
+  function draw(){dots.forEach(d=>{const v=+(mode==="c"?d.dataset.c:d.dataset.b);d.style.transform=`translate(${x(v)}px,${y0+ +d.dataset.j}px)`;d.setAttribute("fill",mode==="c"?"var(--pack)":"var(--msg)")});
+    bc.setAttribute("aria-pressed",mode==="c");bb.setAttribute("aria-pressed",mode==="b");
+    rd.innerHTML=mode==="c"?"Spread: <b>27%</b>, widest pair 4.1&times;":"Spread: <b>7%</b>, widest pair 1.5&times;"}
+  bc.onclick=()=>{mode="c";draw()};bb.onclick=()=>{mode="b";draw()};draw();
+})();
+
+// 2. cooling slider
+(function(){
+  const W=820,H=170,L=20,R=20,s=box("cool",W,H),x=sc(-60,60,L,W-R),y0=80;
+  for(let v=-60;v<=60;v+=20){el("line",{x1:x(v),x2:x(v),y1:30,y2:H-40,stroke:"var(--grid)"},s);txt(s,x(v),H-22,(v>0?"+":"")+v+"%",{"text-anchor":"middle"})}
+  txt(s,W/2,H-4,"bits per verse, difference from the typical language",{"text-anchor":"middle"});
+  const band=el("rect",{y:34,height:H-78,fill:"var(--msg-soft)",rx:4},s);
+  el("line",{x1:x(0),x2:x(0),y1:30,y2:H-40,stroke:"var(--muted)","stroke-dasharray":"3 3"},s);
+  const g=el("g",{},s),names=D.cool[0].v.map(r=>r[0]),dots={};
+  names.forEach((n,i)=>{const d=el("circle",{class:"dot",r:5.5,fill:"var(--msg)","fill-opacity":.75,stroke:"var(--panel)","stroke-width":1},g);d.dataset.j=((i*37)%11-5)*5;dots[n]=d;
+    hover(d,()=>{const k=+inp.value,v=D.cool[k].v.find(r=>r[0]===n)[1];return `${nice(n)}: ${v>0?"+":""}${v}%`})});
+  const inp=document.getElementById("ctx"),nn=document.getElementById("ctx-n"),rd=document.getElementById("ctx-read");
+  function draw(){const k=+inp.value,c=D.cool[k];nn.textContent=k;
+    c.v.forEach(([n,v])=>{dots[n].style.transform=`translate(${x(Math.max(-60,Math.min(60,v)))}px,${y0+ +dots[n].dataset.j}px)`});
+    band.setAttribute("x",x(-c.spread));band.setAttribute("width",x(c.spread)-x(-c.spread));
+    rd.innerHTML=`typical verse <b>${c.median}</b> bits, spread <b>${c.spread}%</b>`}
+  inp.addEventListener("input",draw);draw();
+})();
+
+// 3. order vs word forms
+(function(){
+  const W=820,H=360,L=56,R=20,T=16,B=46,s=box("order",W,H),xs=D.order.map(r=>r[1]),ys=D.order.map(r=>r[2]);
+  const x=sc(Math.floor(Math.min(...xs)),Math.ceil(Math.max(...xs)),L,W-R),y=sc(0,200,H-B,T);
+  for(let v=0;v<=200;v+=50){el("line",{x1:L,x2:W-R,y1:y(v),y2:y(v),stroke:"var(--grid)"},s);txt(s,L-8,y(v)+4,v,{"text-anchor":"end"})}
+  for(let v=Math.floor(Math.min(...xs));v<=Math.ceil(Math.max(...xs));v++)txt(s,x(v),H-B+18,v,{"text-anchor":"middle"});
+  txt(s,(L+W-R)/2,H-6,"variety of word forms (bits per word) → more grammar in endings",{"text-anchor":"middle"});
+  txt(s,14,(T+H-B)/2,"bits carried by word order",{"text-anchor":"middle",transform:`rotate(-90 14 ${(T+H-B)/2})`});
+  const lab=new Set(["Finnish","Hebrew","Thai","Japanese","Malayalam","English","Chinese"]);
+  D.order.forEach(([n,e,o])=>{const c=el("circle",{cx:x(e),cy:y(o),r:5,fill:"var(--msg)","fill-opacity":.7},s);hover(c,`${nice(n)}: ${o.toFixed(0)} bits in word order`);
+    if(lab.has(n))txt(s,x(e)+8,y(o)+4,n,{class:"lab"})});
+})();
+
+// 4. message vs packaging picker
+(function(){
+  const sel=document.getElementById("pick"),bars=D.bars.filter(r=>r[0]!=="English-WEB").sort((a,b)=>a[0].localeCompare(b[0])),web=D.bars.find(r=>r[0]==="English-WEB");
+  bars.forEach(r=>{const o=document.createElement("option");o.value=r[0];o.textContent=r[0];sel.appendChild(o)});sel.value="Shona";
+  const W=820,H=170,L=120,R=20,s=box("cross",W,H),x=sc(0,330,L,W-R);
+  for(let v=0;v<=300;v+=50){el("line",{x1:x(v),x2:x(v),y1:12,y2:120,stroke:"var(--grid)"},s);txt(s,x(v),138,v,{"text-anchor":"middle"})}
+  const g=el("g",{},s);
+  txt(s,(L+W-R)/2,160,"bits per verse",{"text-anchor":"middle"});
+  function row(r,yy,name){txt(g,L-10,yy+20,name,{"text-anchor":"end",class:"lab"});
+    el("rect",{x:x(0),y:yy,width:x(r[1])-x(0),height:30,fill:"var(--msg)",rx:3},g);
+    el("rect",{x:x(r[1])+2,y:yy,width:Math.max(x(r[1]+r[2])-x(r[1])-2,0),height:30,fill:"var(--pack)","fill-opacity":.85,rx:3},g);
+    txt(g,x(r[1])/2+L/2,yy+20,`message ${r[1].toFixed(0)}`,{"text-anchor":"middle",style:"fill:#fff;font-weight:600"});
+    txt(g,x(r[1]+r[2])+6,yy+20,`+ ${r[2].toFixed(0)} packaging`,{class:"lab"})}
+  function draw(){while(g.firstChild)g.firstChild.remove();const r=D.bars.find(b=>b[0]===sel.value);row(web,20,"English (WEB)");row(r,72,r[0])}
+  sel.addEventListener("change",draw);draw();
+})();
+
+// 5. chapters
+(function(){
+  const rows=D.chap,W=820,H=250,L=46,R=10,T=14,B=40,s=box("chap",W,H),n=rows.length,x=sc(0,n,L,W-R),y=sc(.35,.70,H-B,T),bw=(W-R-L)/n;
+  for(let t=.4;t<=.701;t+=.1){el("line",{x1:L,x2:W-R,y1:y(t),y2:y(t),stroke:"var(--grid)"},s);txt(s,L-8,y(t)+4,Math.round(t*100)+"%",{"text-anchor":"end"})}
+  rows.forEach(([c,v],i)=>{const poem=/^(PSA|JON\.2|SON|LAM|JOB)/.test(c);const r=el("rect",{x:x(i)+.5,y:y(v),width:Math.max(bw-1,1),height:y(.35)-y(v),fill:poem?"var(--pack)":"var(--msg)",rx:1},s);hover(r,`${c}: ${Math.round(v*100)}% crosses`)});
+  ["GEN","1SA","1CH","PSA","ISA","MAT","ACT","REV"].forEach(b=>{const i=rows.findIndex(r=>r[0].startsWith(b+"."));if(i>=0)txt(s,x(i),H-B+17,b)});
+  txt(s,(L+W-R)/2,H-4,"chapters in Bible order",{"text-anchor":"middle"});
+})();
+
+// 6. native model
+(function(){
+  const rows=D.native,W=820,rowH=46,L=230,R=30,T=10,H=T+rows.length*rowH+40,s=box("native",W,H),x=sc(-.02,.14,L,W-R);
+  for(let v=0;v<=.14;v+=.02){el("line",{x1:x(v),x2:x(v),y1:T,y2:T+rows.length*rowH,stroke:"var(--grid)"},s);txt(s,x(v),T+rows.length*rowH+18,v.toFixed(2),{"text-anchor":"middle"})}
+  el("line",{x1:x(0),x2:x(0),y1:T,y2:T+rows.length*rowH,stroke:"var(--muted)"},s);
+  txt(s,(L+W-R)/2,H-4,"extra agreement between two books' maps of meaning",{"text-anchor":"middle"});
+  rows.forEach(([n,v,lo,hi],i)=>{const yy=T+i*rowH+rowH/2;txt(s,L-12,yy+4,n,{"text-anchor":"end",class:"lab"});
+    const c=i===0?"var(--msg)":i===1?"var(--pack)":"var(--muted)";
+    el("rect",{x:Math.min(x(0),x(v)),y:yy-11,width:Math.abs(x(v)-x(0)),height:22,fill:c,"fill-opacity":.85,rx:3},s);
+    el("line",{x1:x(lo),x2:x(hi),y1:yy,y2:yy,stroke:"var(--fg)","stroke-width":1.5},s);
+    [lo,hi].forEach(z=>el("line",{x1:x(z),x2:x(z),y1:yy-5,y2:yy+5,stroke:"var(--fg)","stroke-width":1.5},s));
+    txt(s,x(Math.max(v,hi))+8,yy+4,(v>=0?"+":"")+v.toFixed(3),{class:"lab"})});
+})();
+
+// 7. layers
+(function(){
+  const W=820,H=360,s=box("layers",W,H),cx=230,cy=180;
+  const L=[["Packaging",168,"var(--pack-soft)","length and script: varies about 4×"],["Voice",132,"var(--grid)","each translator's fingerprint, 94-100% recognisable"],
+    ["Language accent",98,"var(--pack-soft)","idiom: about a third of the story's mark"],["Use and content",64,"var(--msg-soft)","what the text is doing: the biggest layer"],
+    ["Message",32,"var(--msg)","about 118 bits per verse in every language"]];
+  L.forEach(([n,r,f])=>el("circle",{cx,cy,r,fill:f,stroke:"var(--rule)"},s));
+  const ang=[-55,-30,-5,20],pts=L.map(([n,r],i)=>{if(i===4)return [cx+8,cy+22];const rm=(r+L[i+1][1])/2,a=ang[i]*Math.PI/180;return [cx+rm*Math.cos(a),cy+rm*Math.sin(a)]});
+  L.forEach(([n,r,f,d],i)=>{const yy=40+i*68,[px,py]=pts[i];
+    el("path",{d:`M${px},${py} L440,${yy-5} L460,${yy-5}`,fill:"none",stroke:"var(--muted)","stroke-width":1},s);
+    el("circle",{cx:px,cy:py,r:3.5,fill:i===4?"#fff":"var(--fg)"},s);
+    txt(s,468,yy,n,{class:"lab",style:"font-size:14px"});txt(s,468,yy+18,d)});
+})();
+</script>
