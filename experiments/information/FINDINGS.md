@@ -210,3 +210,72 @@ mid-verse uses; common words are the 100 most frequent word types.
 - Shared message = bits(given another verse) - bits(given the real verse).
 - The decoder alone also gives a neural estimate of each language's bits per verse.
 - This is waiting for a GPU run.
+
+# The shared message (2026-11-26, NLLB run)
+
+Code: gpu_shared_nllb.py (run on Hutch's GPU), analyse_nllb.py. Model: NLLB-200 distilled 600M.
+Test set: 2,346 verses (every tenth chapter of the verses all 56 full Bibles share), 53 languages (NLLB has no
+Latin, Paite or Zarma). Pairs: English to and from every language, and all 132 ordered pairs among 12 languages.
+
+Each target verse is scored given the real source verse, given a different verse (a derangement), and given an
+empty source. Shared message = bits(given another verse) - bits(given the real verse), an estimate of the mutual
+information I(S;T) under this model.
+
+## About half of each verse crosses, and nearly as much as between two English versions
+
+- English to X: median 127 bits per verse shared (53% of the target's bits). X to English: 107 bits (61%).
+  Symmetric average: median 118 bits, spread 12%.
+- Floor: KJV and WEB share 131 bits per verse (75%); WEB adds only 42 bits that KJV doesn't predict.
+- 78% of languages share within 20% of the KJV-WEB amount with English. The difference between languages is in the
+  residual, bits(X | English): 42 for WEB, 64-180 for the rest, spread 25%.
+- The shared amount doesn't track the character-model bits (Spearman 0.04) or length (0.25).
+- Lowest shared fraction: Dutch 0.35, Nepali 0.36, Marathi 0.38, Hebrew 0.40 (the Biblical Hebrew text),
+  Malayalam 0.40, Indonesian 0.43. Nepali and Marathi are the same pair that came out +20% in bits.
+  Highest: Esperanto 0.70, Shona 0.67, Portuguese 0.66, Afrikaans 0.66.
+
+## Checks
+
+- Mutual information is symmetric. English to X and X to English agree across languages at Pearson 0.91, with the
+  return direction about 13% lower. In the 12-language matrix, the two directions of a pair agree at 0.63 and differ by
+  6% on average.
+- The shared fraction of a verse is the same whichever language is the target: split-half 0.92 over verses, 0.93
+  over chapters.
+
+## The pair hardly matters
+
+- In the 12 x 12 matrix, log shared bits split into source effect 47%, target effect 43%, pair interaction 5%.
+- Largest pair effects: English-Arabic +4.1%, Finnish-Hungarian +3.5%, French-Turkish +2.8%, Chinese-Japanese +2.4%.
+  Related languages barely share more than unrelated ones once source and target are accounted for.
+- Weakest target: Hungarian (the Károli text, archaic wording). Weakest sources: Arabic and Chinese.
+- Caveat: a multilingual model with a shared internal space may itself flatten pair effects.
+
+## Where the message crosses
+
+- Lowest: poetry. Jonah 2 (a psalm), Psalms 53, 83, 13, 73, Isaiah 32, about 40%.
+- Highest: 1 Chronicles 3 (genealogy), Romans 16 (greetings), John 15, Genesis 11, 1 John 3, about 61-66%.
+- Link to Atlas, per chapter, partial Spearman controlling length (119 chapters):
+  - shared fraction vs consensus disagreement of the 4 embedding instruments: -0.28 (CI -0.44 to -0.09);
+  - vs character-model shared density: -0.33 (CI -0.51 to -0.13);
+  - vs source names: +0.22 (CI 0.01 to 0.42).
+- So the chapters the embeddings find hard are the chapters where less of the message is shared between
+  translations. Three unrelated instruments agree.
+
+## Neural estimate of each language's own bits
+
+| estimate (same 2,346 verses, 53 languages) | median bits per verse | spread |
+|---|---|---|
+| NLLB decoder, empty source | 269 | 10.6% (CI 8.4-12.5) |
+| NLLB decoder, unrelated source | 228 | 11.7% |
+| character model, order 6 | 224 | 7.3% (CI 5.3-9.1) |
+| better of the two per language | | 8.2% |
+| characters | 122 | 23.9% |
+
+- NLLB and the character model rank languages differently (Spearman 0.42). NLLB's errors are per language: the Greek
+  file is Koine without accents and comes out 37% above the median under a model trained on modern Greek.
+- Reading: the neural run neither tightens nor breaks the 7%. No single model fits every language equally well.
+
+## Caveats
+
+- Shared bits are lower bounds under this model; a stronger model would raise them, more for languages it knows less.
+- English is NLLB's best language, which inflates English-to-X estimates relative to the reverse.
+- The test chapters were fixed before the run, but the analyses above were chosen after seeing the data, so they are exploratory.
