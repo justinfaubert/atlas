@@ -72,28 +72,59 @@ def prepare(name: str, text: str) -> str:
     return text
 
 
-def bits_batch(model, tok, src_texts, tgt_texts, src_code, tgt_code, device, torch):
-    """Bits of each target text given its source text (sum of -log2 p over target tokens after the language tag)."""
+def bits_batch(model, tok, src_texts, tgt_texts, src_code, tgt_code, device, torch, chunk=512):
+    """Bits of each target text given its source text (sum of -log2 p over target tokens after the language tag).
+
+    Memory-lean: the decoder's hidden states are computed once, and the 256k-word output layer is applied only to
+    the real target positions, a chunk at a time, so full-vocabulary logits for the whole batch never exist."""
+    import torch.nn.functional as F
     tok.src_lang, tok.tgt_lang = src_code, tgt_code
     enc = tok(src_texts, text_target=tgt_texts, return_tensors="pt", padding=True, truncation=True, max_length=256)
     enc = {k: v.to(device) for k, v in enc.items()}
     labels = enc.pop("labels")
-    with torch.no_grad():
-        logits = model(**enc, labels=labels).logits.float()
-    logp = torch.log_softmax(logits, -1)
     pad = tok.pad_token_id
-    lp = logp.gather(-1, labels.clamp(min=0).unsqueeze(-1)).squeeze(-1)
-    mask = (labels != pad) & (labels != -100)
+    start = model.config.decoder_start_token_id
+    dec_in = torch.full_like(labels, pad)
+    dec_in[:, 0] = start
+    dec_in[:, 1:] = labels[:, :-1]
+    mask = labels != pad
     mask[:, 0] = False  # the target language tag is given, not predicted
-    return (-(lp * mask).sum(1) / np.log(2)).cpu().numpy(), mask.sum(1).cpu().numpy()
+    with torch.no_grad():
+        h = model.model(input_ids=enc["input_ids"], attention_mask=enc["attention_mask"], decoder_input_ids=dec_in,
+                        decoder_attention_mask=(dec_in != pad) | (torch.arange(dec_in.shape[1], device=device) == 0),
+                        use_cache=False).last_hidden_state
+        hs, ys = h[mask], labels[mask]
+        rows = torch.nonzero(mask)[:, 0]
+        nll = torch.empty(len(ys), device=device)
+        for k in range(0, len(ys), chunk):
+            logits = model.lm_head(hs[k:k + chunk]).float()
+            nll[k:k + chunk] = F.cross_entropy(logits, ys[k:k + chunk], reduction="none")
+        bits = torch.zeros(len(src_texts), device=device).index_add_(0, rows, nll) / np.log(2)
+    return bits.cpu().numpy(), mask.sum(1).cpu().numpy()
 
 
-def score(model, tok, src, tgt, sc, tc, device, torch, bs):
-    order = np.argsort([len(t) for t in tgt])
+def batches(order, lengths, max_tokens):
+    """Group indices (sorted by length) so that batch size x longest item stays under max_tokens."""
+    out, cur, longest = [], [], 0
+    for i in order:
+        L = lengths[i]
+        if cur and max(longest, L) * (len(cur) + 1) > max_tokens:
+            out.append(cur)
+            cur, longest = [], 0
+        cur.append(i)
+        longest = max(longest, L)
+    if cur:
+        out.append(cur)
+    return out
+
+
+def score(model, tok, src, tgt, sc, tc, device, torch, max_tokens):
+    # rough token count: characters / 3 for the longer of source and target, plus a margin
+    lengths = [max(len(a), len(b)) // 3 + 8 for a, b in zip(src, tgt)]
+    order = np.argsort(lengths)
     out = np.zeros(len(tgt))
     ntok = np.zeros(len(tgt))
-    for k in range(0, len(order), bs):
-        ix = order[k:k + bs]
+    for ix in batches(order, lengths, max_tokens):
         b, n = bits_batch(model, tok, [src[i] for i in ix], [tgt[i] for i in ix], sc, tc, device, torch)
         out[ix] = b
         ntok[ix] = n
@@ -106,7 +137,8 @@ def main(argv=None):
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--model", default="facebook/nllb-200-distilled-600M")
     p.add_argument("--pairs", choices=["english", "matrix", "both"], default="both")
-    p.add_argument("--batch", type=int, default=32)
+    p.add_argument("--max-tokens", type=int, default=6000,
+                   help="tokens per batch (lower it if the GPU runs out of memory)")
     p.add_argument("--seed", type=int, default=0)
     a = p.parse_args(argv)
     import torch
@@ -145,7 +177,7 @@ def main(argv=None):
     for t in sorted({t for _, t in pairs}):
         if t in lm:
             continue
-        b, n = score(model, tok, [""] * len(test), texts[t], NLLB[t], NLLB[t], device, torch, a.batch)
+        b, n = score(model, tok, [""] * len(test), texts[t], NLLB[t], NLLB[t], device, torch, a.max_tokens)
         lm[t] = {"bits": b.tolist(), "tokens": n.tolist()}
         lm_file.write_text(json.dumps(lm))
         print(f"LM {t}: {b.mean():.1f} bits per verse", flush=True)
@@ -154,8 +186,8 @@ def main(argv=None):
         if f.exists():
             continue
         src = texts[s]
-        b_real, n = score(model, tok, src, texts[t], NLLB[s], NLLB[t], device, torch, a.batch)
-        b_shuf, _ = score(model, tok, [src[j] for j in shuf], texts[t], NLLB[s], NLLB[t], device, torch, a.batch)
+        b_real, n = score(model, tok, src, texts[t], NLLB[s], NLLB[t], device, torch, a.max_tokens)
+        b_shuf, _ = score(model, tok, [src[j] for j in shuf], texts[t], NLLB[s], NLLB[t], device, torch, a.max_tokens)
         f.write_text(json.dumps({"source": s, "target": t, "real": b_real.tolist(), "shuffled": b_shuf.tolist()}))
         print(f"{s}->{t}: given source {b_real.mean():.1f}, given other verse {b_shuf.mean():.1f}, "
               f"shared {(b_shuf.mean() - b_real.mean()) / b_shuf.mean():.2f}", flush=True)
